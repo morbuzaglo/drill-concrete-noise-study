@@ -1,0 +1,12 @@
+variation,cases_varied,max_abs_change_in_band_level_dB,max_abs_change_in_between_case_difference_dB,verdict_vs_1dB
+structural mesh dx 0.050 -> 0.0333 m,t10_bur t10_exp t20_bur t20_exp,0.30,0.32,PASS
+modal cutoff 60 -> 30 modes,t10_exp t20_bur,0.10,0.10,PASS
+modal cutoff 60 -> 100 modes,t10_exp t20_bur,0.25,0.25,PASS
+frequency grid coarsened: every 2-th CalculiX point,t10_bur t10_exp t20_bur t20_exp,0.52,1.00,COARSER-THAN-BASE (expected change)
+frequency grid coarsened: every 3-th CalculiX point,t10_bur t10_exp t20_bur t20_exp,2.17,2.91,COARSER-THAN-BASE (expected change)
+acoustic solver: in-house BEM (0.05 m) vs Bempp-cl + interpolation,t10_bur t10_exp t20_bur t20_exp,0.43,0.59,PASS
+acoustic mesh 0.10 -> 0.05 m (in-house BEM),t10_bur t10_exp t20_bur t20_exp,0.58,0.83,PASS
+soil shear wave speed 200 -> 100 m/s,t10_bur t10_exp t20_bur t20_exp,3.69,3.85,SENSITIVITY (physical parameter)
+soil shear wave speed 200 -> 400 m/s,t10_bur t10_exp t20_bur t20_exp,4.77,5.17,SENSITIVITY (physical parameter)
+soil/interface spring stiffness x0.5,t10_bur t10_exp t20_bur t20_exp,1.67,1.61,SENSITIVITY (physical parameter)
+soil/interface spring stiffness x2,t10_bur t10_exp t20_bur t20_exp,2.98,2.82,SENSITIVITY (physical parameter)

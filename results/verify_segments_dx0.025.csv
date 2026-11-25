@@ -1,0 +1,6 @@
+case,band_Hz,seg6_0deg_minus_uniform_max_dB,seg6_30deg_minus_uniform_max_dB,torque_band_dB_re20uPa_per_Nm_micF,axial_band_dB_re20uPa_per_N_micF
+t10_exp,63,+0.00,-0.00,-76.7,28.0
+t10_exp,125,-0.00,+0.00,-72.1,29.8
+t10_exp,250,+0.00,-0.00,-76.4,29.1
+t10_exp,500,-0.00,+0.00,-71.1,34.0
+t10_exp,1000,-0.00,+0.00,-32.0,40.2

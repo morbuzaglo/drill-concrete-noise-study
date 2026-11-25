@@ -1,0 +1,5 @@
+case,thickness_m,burial,slab_z_range_m,drill_point(y;z_local),hole_depth_m,production_mesh_dx_m,ccx_result,bempp_result,lsdyna_deck
+t10_exp,0.10,exposed,0..1.0,0.5;0.7,0.05,results/ccx_t10_exp_dx0.05.npz,results/bempp_T_t10_exp.npz,lsdyna/t10_exp
+t10_bur,0.10,buried 0.4 m,-0.4..0.6,0.5;0.7,0.05,results/ccx_t10_bur_dx0.05.npz,results/bempp_T_t10_bur.npz,lsdyna/t10_bur
+t20_exp,0.20,exposed,0..1.0,0.5;0.7,0.05,results/ccx_t20_exp_dx0.05.npz,results/bempp_T_t20_exp.npz,lsdyna/t20_exp
+t20_bur,0.20,buried 0.4 m,-0.4..0.6,0.5;0.7,0.05,results/ccx_t20_bur_dx0.05.npz,results/bempp_T_t20_bur.npz,lsdyna/t20_bur

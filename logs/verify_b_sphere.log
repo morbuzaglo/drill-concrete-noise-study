@@ -1,0 +1,5 @@
+Could not find Gmsh.Interactive plotting and shapes module not available.
+Bempp-cl free field (N=10): max |level error| 0.074 dB, max |phase error| 0.66 deg
+Bempp-cl hemisphere + rigid ground (N=8): max |level error| 0.078 dB, max |phase error| 1.29 deg
+in-house BEM free field (N=12): max |level error| 0.034 dB, max |phase error| 0.80 deg
+in-house BEM hemisphere + ground (N=12): max |level error| 0.020 dB, max |phase error| 0.54 deg

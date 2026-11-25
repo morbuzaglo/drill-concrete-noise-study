@@ -1,0 +1,26 @@
+drill node [0.05 0.5  0.7 ] sensor nodes [array([0.  , 0.65, 0.7 ]), array([0.1, 0.5, 0.7]), array([0.05, 0.85, 1.  ])]
+starter rc 0
+engine rc 0
+.....: .7103E+02    11.45 % 
+ OTHERS (including I/O)......: .1343E+03    21.64 % 
+ TOTAL.......................: .6206E+03   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       68 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       68 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       68 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       68 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          2 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          1 MB
+  
+ ELAPSED TIME     =       2632.08 s
+                          0:43:52
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :   60316
+

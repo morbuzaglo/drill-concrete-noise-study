@@ -1,0 +1,18 @@
+check,expected,measured,unit,error,tolerance,verdict
+sine rms (time domain),0.7071,0.7071,Pa,+0.0000,0.001,PASS
+sine rms from Welch PSD integral,0.7071,0.7071,Pa,-0.0000,0.005,PASS
+sine SPL,90.9691,90.9691,dB,+0.0000,0.05,PASS
+sine SPL (analytic 20log10(0.7071/20e-6)),90.9691,90.9691,dB,+0.0000,1e-09,PASS
+white-noise octave 63 Hz band level,96.4537,96.4137,dB,-0.0399,0.2,PASS
+white-noise octave 125 Hz band level,99.4640,99.4461,dB,-0.0178,0.2,PASS
+white-noise octave 250 Hz band level,102.4743,102.4635,dB,-0.0107,0.2,PASS
+white-noise octave 500 Hz band level,105.4846,105.5094,dB,+0.0249,0.2,PASS
+white-noise octave 1000 Hz band level,108.4949,108.4837,dB,-0.0111,0.2,PASS
+filtered noise 125 Hz: |H|^2 S0 integral vs time-domain RMS,100.3218,100.3345,dB,+0.0127,0.3,PASS
+filtered noise 250 Hz: |H|^2 S0 integral vs time-domain RMS,104.6375,104.6480,dB,+0.0106,0.3,PASS
+filtered noise 500 Hz: |H|^2 S0 integral vs time-domain RMS,114.7945,114.8032,dB,+0.0087,0.3,PASS
+filtered noise 1000 Hz: |H|^2 S0 integral vs time-domain RMS,109.1176,109.1274,dB,+0.0098,0.3,PASS
+assumed force PSD (flat) total RMS,10.0000,10.0000,N,+0.0000,0.01,PASS
+band-sum of flat spectrum = total power,100.0000,100.0000,N^2,-0.0000,0.05,PASS
+assumed force PSD (pink) total RMS,10.0000,10.0000,N,+0.0000,0.01,PASS
+band-sum of pink spectrum = total power,100.0000,100.0000,N^2,+0.0000,0.05,PASS

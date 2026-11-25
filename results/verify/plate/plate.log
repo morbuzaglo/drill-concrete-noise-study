@@ -1,0 +1,338 @@
+
+************************************************************
+
+CalculiX Version 2.22, Copyright(C) 1998-2024 Guido Dhondt
+CalculiX comes with ABSOLUTELY NO WARRANTY. This is free
+software, and you are welcome to redistribute it under
+certain conditions, see gpl.htm
+
+************************************************************
+
+You are using an executable made on Sun Aug  4 19:39:24     2024
+
+  The numbers below are estimated upper bounds
+
+  number of:
+
+   nodes:         3723
+   elements:          800
+   one-dimensional elements:            0
+   two-dimensional elements:            0
+   integration points per element:            8
+   degrees of freedom per node:            3
+   layers per element:            1
+
+   distributed facial loads:            0
+   distributed volumetric loads:            0
+   concentrated loads:            0
+   single point constraints:          243
+   multiple point constraints:            1
+   terms in all multiple point constraints:            1
+   tie constraints:            0
+   dependent nodes tied by cyclic constraints:            0
+   dependent nodes in pre-tension constraints:            0
+
+   sets:            3
+   terms in all sets:         2281
+
+   materials:            1
+   constants per material and temperature:            2
+   temperature points per material:            1
+   plastic data points per material:            0
+
+   orientations:            0
+   amplitudes:            1
+   data points in all amplitudes:            1
+   print requests:            1
+   transformations:            0
+   property cards:            0
+
+
+ STEP            1
+
+ Frequency analysis was selected
+
+ Decascading the MPC's
+
+ Determining the structure of the matrix:
+ Using up to 1 cpu(s) for setting up the structure of the matrix.
+ number of equations
+ 10926
+ number of nonzero lower triangular matrix elements
+ 302156
+
+ Using up to 1 cpu(s) for setting up the structure of the matrix.
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the symmetric stiffness/mass contributions.
+
+Not reusing csc.
++-------------------------------------------------+
++     PaStiX : Parallel Sparse matriX package     +
++-------------------------------------------------+
+  Version:                                   6.0.1
+  Schedulers:
+    sequential:                            Enabled
+    thread static:                         Started
+    thread dynamic:                       Disabled
+    PaRSEC:                               Disabled
+    StarPU:                               Disabled
+  Number of MPI processes:                       1
+  Number of threads per process:                 1
+  Number of GPUs:                                0
+  MPI communication support:              Disabled
+  Distribution level:                     2D( 256)
+  Blocking size (min/max):             1024 / 2048
+
+  Matrix type:  General
+  Arithmetic:   Double
+  Format:       CSC
+  N:            10926
+  nnz:          615238
+
++-------------------------------------------------+
+  Ordering step :
+    Ordering method is: Scotch
+    Time to compute ordering:              0.0338 
++-------------------------------------------------+
+  Symbolic factorization step:
+    Symbol factorization using: Fax Direct
+    Number of nonzeroes in L structure:     965093
+    Fill-in of L:                         1.568650
+    Time to compute symbol matrix:        0.0046 
++-------------------------------------------------+
+  Reordering step:
+    Split level:                                 0
+    Stoping criteria:                           -1
+    Time for reordering:                  0.0129 
++-------------------------------------------------+
+  Analyse step:
+    Number of non-zeroes in blocked L:     1930186
+    Fill-in:                              3.137300
+    Number of operations in full-rank LU   :    313.36 MFlops
+    Prediction:
+      Model:                             AMD 6180  MKL
+      Time to factorize:                  0.1279 
+    Time for analyze:                     0.0016 
++-------------------------------------------------+
+  Factorization step:
+    Factorization used: LU
+    ||A||_2  =                            6.209972e+11
+    Time to initialize internal csc:      0.0765 
+    Time to initialize coeftab:           0.0068 
+    Time to factorize:                    0.0282  (10.84 GFlop/s)
+    Number of operations:                      313.36 MFlops
+    Number of static pivots:                     0
+ Calculating the eigenvalues and the eigenmodes
+
+    Time to solve:                        0.0032 
+    Time for refinement:                  0.0017 
+    Time to solve:                        0.0028 
+    Time to solve:                        0.0033 
+    - iteration 1 :
+         total iteration time                   0.00425 
+         error                                  1.3345e-23
+    Time for refinement:                  0.0057 
+    Time to solve:                        0.0030 
+    Time to solve:                        0.0032 
+    - iteration 1 :
+         total iteration time                   0.00443 
+         error                                  7.8166e-24
+    Time for refinement:                  0.0059 
+    Time to solve:                        0.0030 
+    Time to solve:                        0.0028 
+    - iteration 1 :
+         total iteration time                   0.00385 
+         error                                  1.1742e-23
+    Time for refinement:                  0.0053 
+    Time to solve:                        0.0032 
+    Time to solve:                        0.0030 
+    - iteration 1 :
+         total iteration time                   0.00407 
+         error                                  5.8759e-24
+    Time for refinement:                  0.0057 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0034 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0038 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0032 
+    Time for refinement:                  0.0022 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0034 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0020 
+    Time to solve:                        0.0035 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0034 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0027 
+    Time for refinement:                  0.0013 
+    Time to solve:                        0.0042 
+    Time to solve:                        0.0026 
+    - iteration 1 :
+         total iteration time                   0.00359 
+         error                                  5.1801e-25
+    Time for refinement:                  0.0052 
+    Time to solve:                        0.0033 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0047 
+    Time for refinement:                  0.0023 
+    Time to solve:                        0.0051 
+    Time for refinement:                  0.0024 
+    Time to solve:                        0.0046 
+    Time for refinement:                  0.0017 
+    Time to solve:                        0.0041 
+    Time for refinement:                  0.0028 
+    Time to solve:                        0.0049 
+    Time for refinement:                  0.0020 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0013 
+    Time to solve:                        0.0031 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0031 
+    Time for refinement:                  0.0020 
+    Time to solve:                        0.0040 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0034 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0031 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0034 
+    Time for refinement:                  0.0024 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0031 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0017 
+    Time to solve:                        0.0039 
+    Time for refinement:                  0.0017 
+    Time to solve:                        0.0038 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0013 
+    Time to solve:                        0.0038 
+    Time for refinement:                  0.0023 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0039 
+    Time for refinement:                  0.0021 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0043 
+    Time for refinement:                  0.0019 
+    Time to solve:                        0.0044 
+    Time for refinement:                  0.0023 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0013 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0013 
+    Time to solve:                        0.0038 
+    Time for refinement:                  0.0023 
+    Time to solve:                        0.0041 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0033 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0028 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0045 
+    Time for refinement:                  0.0019 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0029 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0048 
+    Time for refinement:                  0.0020 
+    Time to solve:                        0.0041 
+    Time for refinement:                  0.0019 
+    Time to solve:                        0.0032 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0039 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0036 
+    Time for refinement:                  0.0018 
+    Time to solve:                        0.0036 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0033 
+    Time for refinement:                  0.0016 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0014 
+    Time to solve:                        0.0033 
+    Time for refinement:                  0.0019 
+    Time to solve:                        0.0040 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0030 
+    Time for refinement:                  0.0015 
+    Time to solve:                        0.0040 
+    Time for refinement:                  0.0020 
+U^T*M*U=1.000000 for eigenmode 1
+U^T*M*U=1.000000 for eigenmode 2
+U^T*M*U=1.000000 for eigenmode 3
+U^T*M*U=1.000000 for eigenmode 4
+U^T*M*U=1.000000 for eigenmode 5
+U^T*M*U=1.000000 for eigenmode 6
+U^T*M*U=1.000000 for eigenmode 7
+U^T*M*U=1.000000 for eigenmode 8
+U^T*M*U=1.000000 for eigenmode 9
+U^T*M*U=1.000000 for eigenmode 10
+U^T*M*U=1.000000 for eigenmode 11
+U^T*M*U=1.000000 for eigenmode 12
+U^T*M*U=1.000000 for eigenmode 13
+U^T*M*U=1.000000 for eigenmode 14
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+
+ Job finished
+
+________________________________________
+
+Total CalculiX Time: 1.516791
+________________________________________

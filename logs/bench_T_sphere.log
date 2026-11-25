@@ -1,0 +1,8 @@
+Could not find Gmsh.Interactive plotting and shapes module not available.
+half-sphere quads 192 tris 768
+ ka=0.30 dB err [-0.073 -0.075 -0.075] phase err deg [-0.01 -0.01 -0.01] 301.1s
+ ka=1.00 dB err [-0.044 -0.046 -0.046] phase err deg [-0.17 -0.18 -0.18] 9.8s
+ ka=2.00 dB err [-0.009 -0.013 -0.012] phase err deg [-0.58 -0.66 -0.68] 8.2s
+ ka=3.00 dB err [ 0.007 -0.016 -0.025] phase err deg [-0.92 -1.17 -1.24] 8.6s
+ ka=3.14 dB err [ 0.01  -0.02  -0.032] phase err deg [-0.94 -1.22 -1.28] 6.6s
+ ka=4.00 dB err [ 0.078 -0.012 -0.04 ] phase err deg [-1.06 -1.29 -1.24] 7.1s

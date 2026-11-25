@@ -1,0 +1,4 @@
+t10_exp nodes=1705 solids=800 shells=920 discrete=378 missing=0 Fx=1.000000 Mx=0.00e+00
+t10_bur nodes=3817 solids=800 shells=568 discrete=2490 missing=0 Fx=1.000000 Mx=0.00e+00
+t20_exp nodes=2839 solids=1600 shells=1040 discrete=630 missing=0 Fx=1.000000 Mx=0.00e+00
+t20_bur nodes=5143 solids=1600 shells=656 discrete=2934 missing=0 Fx=1.000000 Mx=0.00e+00

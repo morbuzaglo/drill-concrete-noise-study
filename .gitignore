@@ -1,0 +1,9 @@
+results/ccx/
+results/ccx_smoke/
+results/verify/**/*.eig
+*.eig
+*.frd
+*.sta
+__pycache__/
+*.pyc
+~$*

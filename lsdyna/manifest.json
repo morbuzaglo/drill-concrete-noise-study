@@ -1,0 +1,66 @@
+[
+  {
+    "case": "t10_exp",
+    "t_m": 0.1,
+    "buried": false,
+    "nodes": 1323,
+    "solids": 800,
+    "discrete": 378,
+    "bem_shells": 920,
+    "mics": {
+      "F": 900001,
+      "R": 900002,
+      "Rg": 900003,
+      "S": 900004
+    },
+    "dx": 0.05
+  },
+  {
+    "case": "t10_bur",
+    "t_m": 0.1,
+    "buried": true,
+    "nodes": 1323,
+    "solids": 800,
+    "discrete": 2490,
+    "bem_shells": 568,
+    "mics": {
+      "F": 900001,
+      "R": 900002,
+      "Rg": 900003,
+      "S": 900004
+    },
+    "dx": 0.05
+  },
+  {
+    "case": "t20_exp",
+    "t_m": 0.2,
+    "buried": false,
+    "nodes": 2205,
+    "solids": 1600,
+    "discrete": 630,
+    "bem_shells": 1040,
+    "mics": {
+      "F": 900001,
+      "R": 900002,
+      "Rg": 900003,
+      "S": 900004
+    },
+    "dx": 0.05
+  },
+  {
+    "case": "t20_bur",
+    "t_m": 0.2,
+    "buried": true,
+    "nodes": 2205,
+    "solids": 1600,
+    "discrete": 2934,
+    "bem_shells": 656,
+    "mics": {
+      "F": 900001,
+      "R": 900002,
+      "Rg": 900003,
+      "S": 900004
+    },
+    "dx": 0.05
+  }
+]
