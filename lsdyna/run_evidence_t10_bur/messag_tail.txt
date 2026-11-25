@@ -1,0 +1,14 @@
+ Problem time       =    1.0000E+00
+ Problem cycle      =         3
+ Total CPU time     =       504 seconds (   0 hours  8 minutes 24 seconds)
+ CPU time per zone cycle  =   26360008.402 nanoseconds
+ Clock time per zone cycle=   26336168.872 nanoseconds
+
+ Number of CPU's    4
+ NLQ used/max     136/  136
+ Start time   11/25/2026 13:59:49  
+ End time     11/25/2026 14:08:11  
+ Elapsed time     502 seconds for       3 cycles using  4 SMP threads
+             (      0 hour   8 minutes 22 seconds)
+
+ N o r m a l    t e r m i n a t i o n                          11/25/26 14:08:11

@@ -1,0 +1,15 @@
+      b e m   t i m e   r e p o r t 
+ ---------------------------------------
+ 
+      procedure    cpu time  clock time
+ 
+right hand side      0.0000      0.2410
+diagonal            35.0000     37.3240
+off-diagonal       303.0000    298.7150
+low rank approx      0.0000      0.0000
+factorization        3.0000      1.2020
+gmres solution     135.0000    138.1670
+field pt integr      2.0000      2.3730
+print out outpu      0.0000      0.0940
+ 
+ ---------------------------------------
