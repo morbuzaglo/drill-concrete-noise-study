@@ -1,42 +1,66 @@
 *KEYWORD MEMORY=400m
 *TITLE
-LS-DYNA SSD + acoustic BEM: drill on concrete t=200 mm, partially buried  [PREPARED, NOT RUN]
-$ ==================================================================================
-$ STATUS: not executed in this project (no usable LS-DYNA license). The mesh/material/discrete/load cards follow standard
-$ keyword syntax. The *FREQUENCY_DOMAIN cards below follow the R13/R14 manual layout as documented in the comments; verify
-$ the field positions against the manual of YOUR release (Example 8.4: SSD coupled to acoustic BEM) with a 5-frequency test run first.
-$ ==================================================================================
-*CONTROL_TERMINATION
-$#  endtim
-       1.0
-*CONTROL_IMPLICIT_GENERAL
-$#  imflag     dt0
-         1       1.0
-*CONTROL_IMPLICIT_EIGENVALUE
-$#    neig  center   lflag  lfdtend   hflag  hfend  eigmth  shfscl
-        60       0.0         0       0.0         0       0.0         2       0.0
-*DATABASE_BINARY_D3PLOT
-$#      dt
-       1.0
+SSD + acoustic BEM: drill on concrete t=200 mm, partially buried
+$ Load case 1 (axial, uniform annulus) is active. For cases 2-4 replace the card-7 lines below by the lines in the comment block.
+$ Not implemented here: the rigid ground plane for the BEM (the open-source study used the image method).
 *INCLUDE
 mesh.k
 *INCLUDE
 loads.k
-$ ---- steady-state dynamics ----------------------------------------------------
+*CONTROL_IMPLICIT_EIGENVALUE
+$#    neig    center     lflag    lftend     rflag    rhtend    eigmth    shfscl
+        60     0.000         0     0.000         0     0.000         0     0.000
+$#  isolid     ibeam    ishell   itshell
+         0         0         0         0
+*CONTROL_IMPLICIT_GENERAL
+$#  imflag       dt0    imform      nsbs       igs     cnstn      form    zero_v
+         1     0.000         0         0         0         0         0         0
+*CONTROL_IMPLICIT_SOLUTION
+$#  nsolvr    ilimit    maxref     dctol     ectol     rctol     lstol    abstol
+         1         0         0     0.000     0.000     0.000     0.000     0.000
 *FREQUENCY_DOMAIN_SSD
-$#   mdmin   mdmax   fnmin   fnmax  restmd  restdp  lcflag  relatv
-         1        60       0.0     2828.6         0         0         0         0
-$#   dampf   lcdam   lctyp  dmpmas  dmpstf  dmpflg
-    0.0100         0         0       0.0       0.0         0
-$#   nfreq  fstart   fstop  fspace   lcfreq
-      1000     44.19   1414.30         0         0
-$ excitation: nodal loads defined by *LOAD_NODE_POINT with curve 1 (unit amplitude at all frequencies)
-$ ---- acoustic BEM (rigid ground by image method: see README, section "ground plane") -----------
+$#   mdmin     mdmax     fnmin     fnmax    restmd    restdp    lcflag    relatv
+         1        60     0.000     0.000         0         0
+$#   dampf     lcdam     lctyp    dmpmas    dmpstf    dmpflg
+  0.010000         0         0     0.000     0.000
+$#                                                      nout     notyp      nova
+                                                           1         2         0
+$#     nid      ntyp       dof       vad       lc1       lc2       lc3       vid
+      1412         0         1         0      1000       200         0         0
+      1417         0         1         0      1001       200         0         0
+      1422         0         1         0      1002       200         0         0
+      1517         0         1         0      1003       200         0         0
+      1522         0         1         0      1004       200         0         0
+      1527         0         1         0      1005       200         0         0
+      1622         0         1         0      1006       200         0         0
+      1627         0         1         0      1007       200         0         0
+      1632         0         1         0      1008       200         0         0
+$ --- load case 2: torque_uniform_1Nm
+$ --- load case 3: axial_seg6_0deg_1N
+$ --- load case 4: axial_seg6_30deg_1N
+$     1412         0         2         0      2000       200         0         0
+$     1412         0         3         0      2001       200         0         0
+$     1417         0         2         0      2002       200         0         0
+$     1412         0         1         0      3000       200         0         0
+$     1417         0         1         0      3001       200         0         0
+$     1422         0         1         0      3002       200         0         0
+$     1412         0         1         0      4000       200         0         0
+$     1417         0         1         0      4001       200         0         0
+$     1422         0         1         0      4002       200         0         0
+*DATABASE_FREQUENCY_BINARY_D3SSD
+$#  binary
+         1
+$#    fmin      fmax     nfreq    fspace    lcfreq
+   44.1900 1414.3000      1000         0         0
 *FREQUENCY_DOMAIN_ACOUSTIC_BEM
-$#  method   maxit  tollin    tolr
-         3         0       0.0       0.0
-$#      ro       c    fmin    fmax   nfreq   dtout  tstart    pref
-       1.2     343.0   44.19 1414.30    1000       0.0       0.0   2.0E-05
-$#  nsidext typext nsidint typint  (field points = node set 2; surface = part 2)
-         2         0         0         0
+$#      ro         c     fnmin     fnmax     nfreq    dt_out   t_start      pref
+    1.2000  343.0000   44.1900 1414.3000      1000  0.001000     0.0002.0000E-05
+$#nsid_ext  type_ext  nsid_int  type_int   fft_win     trslt    ipfile    iunits
+         2         1         0         0         4         0         0         0
+$#  method     maxit  tol_iter       ndd    tol_lr  tol_fact     ibdim       npg
+         2      1000 1.0000E-6         8     0.000     0.000         0         0
+$#               nbc    restrt     iedge      noel     nfrup
+                   1                   1
+$#    ssid    sstype      norm  bem_type       lc1       lc2
+         1         2         0         0
 *END

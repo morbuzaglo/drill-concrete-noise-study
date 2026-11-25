@@ -1,0 +1,12 @@
+# Python packages used by the study (tested with Python 3.12, Windows 10). Install into a venv OUTSIDE OneDrive: see setup/setup_windows.ps1
+numpy==2.5.5
+scipy==1.18.1
+matplotlib==3.11.2
+pandas==3.1.1
+numba==0.68.1
+bempp-cl==0.4.2
+gmsh==4.15.2
+meshio==5.3.5
+python-docx==1.2.0
+pywin32==312
+pymupdf==2.1

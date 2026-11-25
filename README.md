@@ -1,12 +1,16 @@
 # Drill structure-borne noise: concrete thickness x partial burial (open-source study + prepared LS-DYNA decks)
 
-Status: numerical demonstration study with documented assumptions. No physical validation. LS-DYNA decks are prepared and NOT run (no usable license).
+Status: numerical demonstration study with documented assumptions. No physical validation. LS-DYNA decks: `t10_bur` ran to normal termination in Ansys LS-DYNA R14 (v252, double precision, `bem=1`); the other three decks are generated the same way but not yet run. LS-DYNA acoustic levels are NOT yet reconciled with the open-source results (see `lsdyna/run_evidence_t10_bur`).
 Report (Hebrew): `report/drill_noise_report_he.docx` and `.pdf`.
 
 ## Stack
 CalculiX 2.22 (structure, SSD) + Bempp-cl 0.4.2 (Burton-Miller, ground by image method). In-house FEM/BEM (`src/fem.py`, `src/bem.py`) and OpenRadioss are cross-checks only.
-CalculiX: official Windows build from dhondt.de, unzipped to `%LOCALAPPDATA%\CalculiX` (ccx_static.exe). Python venv: `%LOCALAPPDATA%\drill-lsdyna-venv`
-(`pip install numpy scipy matplotlib python-docx pandas pywin32 bempp-cl gmsh numba meshio pymupdf`).
+## Installation (Windows, no admin rights)
+```
+powershell -ExecutionPolicy Bypass -File setup\setup_windows.ps1 [-WithOpenRadioss]
+```
+Creates the venv `%LOCALAPPDATA%\drill-lsdyna-venv` from `requirements.txt` (pinned versions), downloads CalculiX 2.22 from dhondt.de (SHA-256 checked) into `%LOCALAPPDATA%\CalculiX`, and optionally OpenRadioss from its official GitHub release into `C:\OpenRadioss`. Binaries are fetched, not stored in this repository. Needs Python 3.12; MS Word only for the PDF export.
+LS-DYNA (commercial) is not included: use your own installation.
 
 ## Reproduce (from `src/`, venv python)
 1. Structure (4 cases, production dx=0.05): `bash ../run_ccx_queue.sh`  (sensitivity: `../run_ccx_queue2.sh`, `../run_ccx_queue3.sh`)
@@ -20,7 +24,7 @@ CalculiX: official Windows build from dhondt.de, unzipped to `%LOCALAPPDATA%\Cal
 ## Known limits
 Bands 2-8 kHz unresolved (study covers 44.2-1414 Hz). Soil = impedance springs/dampers. Exposed soil surface not radiating. Stationary load only.
 Microphone O (oblique) comes from the in-house BEM. OpenRadioss: resonance frequencies only (amplitude scale not validated).
-LS-DYNA decks: FREQUENCY_DOMAIN_SSD / ACOUSTIC_BEM fields must be checked against the manual of your release; rigid ground is not implemented in them.
+LS-DYNA decks: card layouts follow Ansys example 8.4 (SSD + acoustic BEM). Run with the double-precision solver and `bem=1` (`lsdyna\<case>\run.bat`, or in LS-Run: solver `lsdyna_dp.exe`, command line extended with `bem=1`). Rigid ground is not implemented in them; panel normal direction unverified.
 
 ## סיכום קצר
 הלוח הדק (100 מ"מ) קורן יותר מהעבה (200 מ"מ) ב-3 עד 13 dB בפסי 63-1000 Hz. קבורה חלקית מפחיתה קרינה ב-3 עד 11 dB מעל 250 Hz; מתחת לכך הסימן תלוי בקשיחות האדמה. לא בוצע תיקוף פיזי.

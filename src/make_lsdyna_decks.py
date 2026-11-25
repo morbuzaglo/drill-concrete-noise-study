@@ -42,10 +42,10 @@ def write_case(cid, t, bur):
         for val, items in groups.items():
             pid += 1; mid += 1
             if kind == 'k':
-                mats.append(['*MAT_SPRING_ELASTIC', '$#     mid       k   (comma-separated)', '%d,%s' % (mid, val)])
+                mats.append(['*MAT_SPRING_ELASTIC', '$#     mid         k', '%10d%10.5G' % (mid, float(val))])
             else:
-                mats.append(['*MAT_DAMPER_VISCOUS', '$#     mid      dc   (comma-separated)', '%d,%s' % (mid, val)])
-            parts.append(['*SECTION_DISCRETE', '$#   secid     dro      kd', '%10d%10d' % (pid, 0), '*PART', f'soil_{kind}_{pid}', '%10d%10d%10d' % (pid, pid, mid)])
+                mats.append(['*MAT_DAMPER_VISCOUS', '$#     mid        dc', '%10d%10.5G' % (mid, float(val))])
+            parts.append(['*SECTION_DISCRETE', '$#   secid     dro      kd', '%10d%10d' % (pid, 0), '$#     cdl       tdl', '       0.0       0.0', '*PART', f'soil_{kind}_{pid}', '%10d%10d%10d' % (pid, pid, mid)])
             elems.append(f'$ discrete elements, part {pid}')
             for node, comp in items:
                 gid += 1; eid += 1; p = xyz[node].copy(); p[2] += zb; p[comp] -= 1.0
@@ -67,6 +67,8 @@ def write_case(cid, t, bur):
           '*SECTION_SHELL', '$#   secid  elform    shrf     nip   propt', '%10d%10d' % (2, 2), '%10.4f%10.4f%10.4f%10.4f' % (0.001, 0.001, 0.001, 0.001),
           '*PART', 'BEM_exposed_surface', '%10d%10d%10d' % (2, 2, 2), '*ELEMENT_SHELL', '$#   eid     pid      n1      n2      n3      n4']
     L += ['%8d%8d' % (5_000_000 + i, 2) + ''.join('%8d' % nid(cl[i, k]) for k in range(4)) for i in range(len(cl))]
+    L += ['*SET_SEGMENT', '$#     sid       da1       da2       da3       da4    solver', '%10d%10.3f%10.3f%10.3f%10.3f' % (1, 0, 0, 0, 0), '$#      n1        n2        n3        n4        a1        a2        a3        a4']
+    L += [''.join('%10d' % nid(cl[i, k]) for k in range(4)) for i in range(len(cl))]
     mics = mic_positions(t); mn = {}
     L += ['*NODE']
     for k, (nm, p) in enumerate(mics.items()):
@@ -76,42 +78,50 @@ def write_case(cid, t, bur):
     (d / 'mesh.k').write_text('\n'.join(L) + '\n', encoding='ascii')
     # ---------------- loads.k : unit loads from the same nodal vectors as the open-source model
     F = c.F; names = ['axial_uniform_1N', 'torque_uniform_1Nm', 'axial_seg6_0deg_1N', 'axial_seg6_30deg_1N']
-    LD = ['*KEYWORD', '*TITLE', 'unit drill loads (axial 1 N distributed on the annulus; torque 1 N m)', '*DEFINE_CURVE', '$#    lcid', '         1', '$                 a1                  o1',
-          '                 0.0                 1.0', '           1.0E+06                 1.0']
+    # SSD loads follow the layout of LS-DYNA Example 8.4: card 7 = nid ntyp dof vad lc1 lc2 lc3 vid, lc1 = amplitude curve, lc2 = phase curve [deg].
+    # One amplitude curve per loaded node (constant over frequency, ordinate = nodal force of the unit load); curve 200 = zero phase.
+    def curve(lcid, val):
+        return ['*DEFINE_CURVE', '$#    lcid      sidr       sfa       sfo      offa      offo    dattyp', '%10d%10d%10.3f%10.3f%10.3f%10.3f%10d' % (lcid, 0, 0, 0, 0, 0, 0),
+                '$#                a1                  o1', '%20.8E%20.8E' % (1.0, val), '%20.8E%20.8E' % (2000.0, val)]
+    LD = ['*KEYWORD', '*TITLE', 'unit drill loads (axial 1 N distributed on the annulus; torque 1 N m): amplitude curves, one per loaded node and load case'] + curve(200, 0.0)
+    cards = {}
     for k, nm in enumerate(names):
-        LD.append(f'$ ---- load case {k + 1}: {nm}  (switch on by including this block in main.k via the *INCLUDE lines)')
-        LD.append('*LOAD_NODE_POINT' if k == 0 else '$*LOAD_NODE_POINT')
-        LD.append('$#     nid     dof    lcid      sf')
-        for dof in np.nonzero(F[:, k])[0]:
-            LD.append(('' if k == 0 else '$') + '%10d%8d%8d%16.9E' % (dof // 3 + 1, dof % 3 + 1, 1, F[dof, k]))
+        cards[k] = []
+        for i, dof in enumerate(np.nonzero(F[:, k])[0]):
+            lcid = 1000 * (k + 1) + i
+            LD += curve(lcid, float(F[dof, k]))
+            cards[k].append('%10d%10d%10d%10d%10d%10d%10d%10d' % (dof // 3 + 1, 0, dof % 3 + 1, 0, lcid, 200, 0, 0))
     LD.append('*END')
-    (d / 'loads.k').write_text('\n'.join(LD) + '\n', encoding='ascii')
-    # ---------------- main.k
-    M = ['*KEYWORD MEMORY=400m', '*TITLE', f'LS-DYNA SSD + acoustic BEM: drill on concrete t={t*1000:.0f} mm, {"partially buried" if bur else "exposed"}  [PREPARED, NOT RUN]',
-         '$ ==================================================================================',
-         '$ STATUS: not executed in this project (no usable LS-DYNA license). The mesh/material/discrete/load cards follow standard',
-         '$ keyword syntax. The *FREQUENCY_DOMAIN cards below follow the R13/R14 manual layout as documented in the comments; verify',
-         '$ the field positions against the manual of YOUR release (Example 8.4: SSD coupled to acoustic BEM) with a 5-frequency test run first.',
-         '$ ==================================================================================',
-         '*CONTROL_TERMINATION', '$#  endtim', '       1.0',
-         '*CONTROL_IMPLICIT_GENERAL', '$#  imflag     dt0', '         1       1.0',
-         '*CONTROL_IMPLICIT_EIGENVALUE', f'$#    neig  center   lflag  lfdtend   hflag  hfend  eigmth  shfscl', f'{NMODES:10d}       0.0         0       0.0         0       0.0         2       0.0',
-         '*DATABASE_BINARY_D3PLOT', '$#      dt', '       1.0',
+    (d / 'loads.k').write_text(chr(10).join(LD) + chr(10), encoding='ascii')
+    # ---------------- main.k  (keyword layout copied from the LS-DYNA examples 8.4 / SSD-coupled BEM, 10-column fixed format)
+    f10 = lambda v: '%10.4f' % v
+    M = ['*KEYWORD MEMORY=400m', '*TITLE', f'SSD + acoustic BEM: drill on concrete t={t*1000:.0f} mm, {"partially buried" if bur else "exposed"}',
+         '$ Load case 1 (axial, uniform annulus) is active. For cases 2-4 replace the card-7 lines below by the lines in the comment block.',
+         '$ Not implemented here: the rigid ground plane for the BEM (the open-source study used the image method).',
          '*INCLUDE', 'mesh.k', '*INCLUDE', 'loads.k',
-         '$ ---- steady-state dynamics ----------------------------------------------------',
-         '*FREQUENCY_DOMAIN_SSD', '$#   mdmin   mdmax   fnmin   fnmax  restmd  restdp  lcflag  relatv',
-         f'         1{NMODES:10d}       0.0   {2.0*FMAX:8.1f}         0         0         0         0',
-         '$#   dampf   lcdam   lctyp  dmpmas  dmpstf  dmpflg', f'{ZETA:10.4f}         0         0       0.0       0.0         0',
-         '$#   nfreq  fstart   fstop  fspace   lcfreq', f'{NFREQ:10d}{FMIN:10.2f}{FMAX:10.2f}         0         0',
-         '$ excitation: nodal loads defined by *LOAD_NODE_POINT with curve 1 (unit amplitude at all frequencies)',
-         '$ ---- acoustic BEM (rigid ground by image method: see README, section "ground plane") -----------',
-         '*FREQUENCY_DOMAIN_ACOUSTIC_BEM', '$#  method   maxit  tollin    tolr',
-         '         3         0       0.0       0.0', '$#      ro       c    fmin    fmax   nfreq   dtout  tstart    pref',
-         f'       1.2     343.0{FMIN:8.2f}{FMAX:8.2f}{NFREQ:8d}       0.0       0.0   2.0E-05',
-         '$#  nsidext typext nsidint typint  (field points = node set 2; surface = part 2)', '         2         0         0         0',
+         '*CONTROL_IMPLICIT_EIGENVALUE', '$#    neig    center     lflag    lftend     rflag    rhtend    eigmth    shfscl',
+         '%10d%10.3f%10d%10.3f%10d%10.3f%10d%10.3f' % (NMODES, 0.0, 0, 0.0, 0, 0.0, 0, 0.0), '$#  isolid     ibeam    ishell   itshell', '         0         0         0         0',
+         '*CONTROL_IMPLICIT_GENERAL', '$#  imflag       dt0    imform      nsbs       igs     cnstn      form    zero_v', '         1     0.000         0         0         0         0         0         0',
+         '*CONTROL_IMPLICIT_SOLUTION', '$#  nsolvr    ilimit    maxref     dctol     ectol     rctol     lstol    abstol', '         1         0         0     0.000     0.000     0.000     0.000     0.000',
+         '*FREQUENCY_DOMAIN_SSD', '$#   mdmin     mdmax     fnmin     fnmax    restmd    restdp    lcflag    relatv',
+         '%10d%10d%10.3f%10.3f%10d%10d' % (1, NMODES, 0.0, 0.0, 0, 0),
+         '$#   dampf     lcdam     lctyp    dmpmas    dmpstf    dmpflg', '%10.6f%10d%10d%10.3f%10.3f' % (ZETA, 0, 0, 0.0, 0.0),
+         '$#                                                      nout     notyp      nova', '%60d%10d%10d' % (1, 2, 0),
+         '$#     nid      ntyp       dof       vad       lc1       lc2       lc3       vid'] + cards[0] +         [f'$ --- load case {k + 1}: {names[k]}' for k in (1, 2, 3)] +         ['$' + x[1:] for k in (1, 2, 3) for x in cards[k][:3]] +         ['*DATABASE_FREQUENCY_BINARY_D3SSD', '$#  binary', '         1', '$#    fmin      fmax     nfreq    fspace    lcfreq',
+         '%10.4f%10.4f%10d%10d%10d' % (FMIN, FMAX, NFREQ, 0, 0),
+         '*FREQUENCY_DOMAIN_ACOUSTIC_BEM', '$#      ro         c     fnmin     fnmax     nfreq    dt_out   t_start      pref',
+         '%10.4f%10.4f%10.4f%10.4f%10d%10.6f%10.3f%10.4E' % (1.2, 343.0, FMIN, FMAX, NFREQ, 0.001, 0.0, 2.0E-5),
+         '$#nsid_ext  type_ext  nsid_int  type_int   fft_win     trslt    ipfile    iunits', '         2         1         0         0         4         0         0         0',
+         '$#  method     maxit  tol_iter       ndd    tol_lr  tol_fact     ibdim       npg', '         2      1000 1.0000E-6         8     0.000     0.000         0         0',
+         '$#               nbc    restrt     iedge      noel     nfrup', '                   1                   1',
+         '$#    ssid    sstype      norm  bem_type       lc1       lc2', '         1         2         0         0',
          '*END']
-    (d / 'main.k').write_text('\n'.join(M) + '\n', encoding='ascii')
-    (d / 'run.bat').write_text('@echo off\r\nrem usage: run.bat   (set LSDYNA_EXE to your solver, e.g. lsdyna_dp.exe of your installation)\r\nif "%LSDYNA_EXE%"=="" (echo set LSDYNA_EXE first & exit /b 1)\r\n"%LSDYNA_EXE%" i=main.k ncpu=4 memory=400m > solver.log 2>&1\r\n', encoding='ascii')
+    (d / 'main.k').write_text(chr(10).join(M) + chr(10), encoding='ascii')
+    BAT = ['@echo off',
+           'rem double precision is required (implicit/SSD is not supported in single precision); bem=1 enables the acoustic BEM solver',
+           'if "%LSDYNA_EXE%"=="" set "LSDYNA_EXE=C:\\Program Files\\ANSYS Inc\\v252\\ansys\\bin\\winx64\\lsdyna_dp.exe"',
+           '"%LSDYNA_EXE%" i=main.k ncpu=4 memory=400m bem=1 > solver.log 2>&1']
+    (d / 'run.bat').write_text('\r\n'.join(BAT) + '\r\n', encoding='ascii')
     return dict(case=cid, t_m=t, buried=bur, nodes=slab.nn, solids=len(slab.conn), discrete=len(gn), bem_shells=len(cl), mics=mn, dx=slab.dx)
 
 

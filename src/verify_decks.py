@@ -15,11 +15,15 @@ for case in ['t10_exp', 't10_bur', 't20_exp', 't20_bur']:
         elif sec == '*ELEMENT_DISCRETE': disc.append([int(ln[i:i + 8]) for i in range(0, 32, 8)])
     miss = sum(n not in nodes for e in solids for n in e[2:]) + sum(n not in nodes for e in shells for n in e[2:]) + sum(n not in nodes for e in disc for n in e[2:4])
     # loads
-    sec = None; F = {}
-    for ln in (D / case / 'loads.k').read_text().splitlines():
-        if ln.startswith('*') or ln.startswith('$*'): sec = ln.lstrip('$').strip(); continue
-        m = re.match(r'^(\$?)\s*(\d+)\s+(\d)\s+(\d+)\s+([-+0-9.E]+)\s*$', ln)
-        if m: F.setdefault(m.group(1) == '', []).append((int(m.group(2)), int(m.group(3)), float(m.group(5))))
+    # loads: card-7 lines of main.k (active ones) + amplitude curves (constant) in loads.k
+    lines = (D / case / 'loads.k').read_text().splitlines(); cur = {}
+    for i, ln in enumerate(lines):
+        if ln.startswith('*DEFINE_CURVE'): lcid = int(lines[i + 2][:10]); cur[lcid] = float(lines[i + 4][20:40])
+    F = {True: []}; ssd = False
+    for ln in (D / case / 'main.k').read_text().splitlines():
+        if ln.startswith('*'): ssd = ln.startswith('*FREQUENCY_DOMAIN_SSD'); continue
+        if ssd and len(ln) >= 80 and not ln.startswith('$') and ln[40:50].strip() and int(ln[40:50]) in cur:
+            F[True].append((int(ln[:10]), int(ln[20:30]), cur[int(ln[40:50])]))
     axial = F.get(True, [])
     Fx = sum(f for n, d, f in axial if d == 1)
     yc, zc = 0.5, 0.7 + (-0.4 if 'bur' in case else 0.0)

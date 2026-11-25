@@ -1,9 +1,17 @@
 results/ccx/
 results/ccx_smoke/
-results/verify/**/*.eig
 *.eig
 *.frd
 *.sta
 __pycache__/
 *.pyc
 ~$*
+# LS-DYNA run products: keep only the input decks (main.k mesh.k loads.k run.bat); evidence summaries are in lsdyna/run_evidence_*
+lsdyna/*/*
+!lsdyna/*/main.k
+!lsdyna/*/mesh.k
+!lsdyna/*/loads.k
+!lsdyna/*/run.bat
+!lsdyna/run_evidence_*/
+!lsdyna/manifest.json
+!lsdyna/static_check.txt
