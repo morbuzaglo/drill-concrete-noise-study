@@ -69,6 +69,12 @@ def write_case(cid, t, bur):
     L += ['%8d%8d' % (5_000_000 + i, 2) + ''.join('%8d' % nid(cl[i, k]) for k in range(4)) for i in range(len(cl))]
     L += ['*SET_SEGMENT', '$#     sid       da1       da2       da3       da4    solver', '%10d%10.3f%10.3f%10.3f%10.3f' % (1, 0, 0, 0, 0), '$#      n1        n2        n3        n4        a1        a2        a3        a4']
     L += [''.join('%10d' % nid(cl[i, k]) for k in range(4)) for i in range(len(cl))]
+    # the dummy BEM shells give the shared nodes rotational DOFs with ~zero stiffness -> spurious low-frequency modes (first run: 60 modes only up to 158 Hz).
+    # Fix: clamp the rotational DOFs of all BEM-surface nodes (translations stay free).
+    sn = sorted({nid(cl[i, k]) for i in range(len(cl)) for k in range(4)})
+    L += ['*SET_NODE_LIST', '$#     sid       da1       da2       da3       da4    solver', '%10d%10.3f%10.3f%10.3f%10.3f' % (3, 0, 0, 0, 0), '$#    nid1      nid2      nid3      nid4      nid5      nid6      nid7      nid8']
+    L += [''.join('%10d' % v for v in sn[i:i + 8]) for i in range(0, len(sn), 8)]
+    L += ['*BOUNDARY_SPC_SET', '$#    nsid       cid      dofx      dofy      dofz     dofrx     dofry     dofrz', '%10d%10d%10d%10d%10d%10d%10d%10d' % (3, 0, 0, 0, 0, 1, 1, 1)]
     mics = mic_positions(t); mn = {}
     L += ['*NODE']
     for k, (nm, p) in enumerate(mics.items()):
