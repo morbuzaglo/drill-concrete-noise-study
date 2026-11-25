@@ -2,7 +2,7 @@
 
 Status: numerical demonstration study with documented assumptions. No physical validation. LS-DYNA decks: `t10_bur` ran to normal termination in Ansys LS-DYNA R14 (v252, double precision, `bem=1`); the other three decks are generated the same way but not yet run. LS-DYNA acoustic levels are NOT yet reconciled with the open-source results (see `lsdyna/run_evidence_t10_bur`).
 Report (Hebrew): `report/drill_noise_report_he.docx` and `.pdf`.
-Theory + practice manual for LS-DYNA SSD/BEM (Hebrew, SVG figures): `report/LS-DYNA_manual_he.docx` and `.pdf` (`src/make_manual_figs.py`, `src/make_manual.py`, then `src/export_pdf.py LS-DYNA_manual_he`).
+Theory + practice manual for LS-DYNA SSD/BEM (Hebrew, SVG figures): `report/LS-DYNA_manual_he.docx` and `.pdf` (rebuild everything with `python src/build_manual.py`; it runs the figure scripts, builds the docx twice for the static table of contents, and exports the PDF through Word).
 
 ## Stack
 CalculiX 2.22 (structure, SSD) + Bempp-cl 0.4.2 (Burton-Miller, ground by image method). In-house FEM/BEM (`src/fem.py`, `src/bem.py`) and OpenRadioss are cross-checks only.

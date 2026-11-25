@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-25T22:41:11.876923</dc:date>
+    <dc:date>2026-11-25T23:25:11.532266</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -40,7 +40,7 @@ Q 15.18336 1.43424 15.18336 5.86944
 L 15.18336 87.92064 
 Q 15.18336 92.35584 19.61856 92.35584 
 z
-" clip-path="url(#p2c2c4fae9c)" style="fill: #fff4d6; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p106d089b82)" style="fill: #fff4d6; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 19.61856 207.67104 
@@ -53,7 +53,7 @@ Q 15.18336 116.74944 15.18336 121.18464
 L 15.18336 203.23584 
 Q 15.18336 207.67104 19.61856 207.67104 
 z
-" clip-path="url(#p2c2c4fae9c)" style="fill: #e6eef5; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p106d089b82)" style="fill: #e6eef5; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 19.61856 283.06944 
@@ -66,7 +66,7 @@ Q 15.18336 229.40352 15.18336 233.83872
 L 15.18336 278.63424 
 Q 15.18336 283.06944 19.61856 283.06944 
 z
-" clip-path="url(#p2c2c4fae9c)" style="fill: #e3f4ee; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p106d089b82)" style="fill: #e3f4ee; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 19.61856 424.99584 
@@ -79,7 +79,7 @@ Q 15.18336 315.4464 15.18336 319.8816
 L 15.18336 420.56064 
 Q 15.18336 424.99584 19.61856 424.99584 
 z
-" clip-path="url(#p2c2c4fae9c)" style="fill: #fbe3e1; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p106d089b82)" style="fill: #fbe3e1; stroke: #12264a; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
     <!-- main.k -->
@@ -3218,7 +3218,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p2c2c4fae9c">
+  <clipPath id="p106d089b82">
    <rect x="7.2" y="7.2" width="554.4" height="425.7792"/>
   </clipPath>
  </defs>

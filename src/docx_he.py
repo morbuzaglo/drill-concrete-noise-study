@@ -33,6 +33,23 @@ def new_document():
             if rf.get(qn(a)) is not None: del rf.attrib[qn(a)]
         szc = OxmlElement('w:szCs'); szc.set(qn('w:val'), str(size * 2)); r.append(szc)
         bcs = OxmlElement('w:bCs'); r.append(bcs)
+    # proofing: Hebrew for complex-script text, no spelling/grammar squiggles in a generated technical document
+    st_el = d.styles.element
+    dd = st_el.find(qn('w:docDefaults'))
+    if dd is not None:
+        rpd = dd.find(qn('w:rPrDefault'))
+        if rpd is not None:
+            rp = rpd.find(qn('w:rPr'))
+            if rp is not None:
+                for old in rp.findall(qn('w:lang')): rp.remove(old)
+                lg = OxmlElement('w:lang'); lg.set(qn('w:val'), 'en-US'); lg.set(qn('w:eastAsia'), 'he-IL'); lg.set(qn('w:bidi'), 'he-IL'); rp.append(lg)
+    sett = d.settings.element
+    anchor = next((c for c in sett if c.tag in (qn('w:proofState'), qn('w:defaultTabStop'))), None)
+    for tag in ('w:hideSpellingErrors', 'w:hideGrammaticalErrors'):
+        if sett.find(qn(tag)) is None:
+            el = OxmlElement(tag)
+            if anchor is not None: anchor.addprevious(el)
+            else: sett.append(el)
     return d
 
 
@@ -61,21 +78,64 @@ def _run(p, text, bold=False, italic=False, size=None, color=None, rtl=False, mo
         if bold: rpr.append(OxmlElement('w:bCs'))
         if size:
             szcs = OxmlElement('w:szCs'); szcs.set(qn('w:val'), str(int(size * 2))); rpr.append(szcs)
+    if mono: rpr.append(OxmlElement('w:noProof'))
+    lang = OxmlElement('w:lang'); lang.set(qn('w:val'), 'en-US'); lang.set(qn('w:bidi'), 'he-IL'); rpr.append(lang)
     return r
 
 
-LRM = '‎'
+LRM = '\u200e'
+_ALN = re.compile('[A-Za-z0-9\u0370-\u03ff]')
+_TAILSYM = '%\u00b0\u00b2\u00b3\u00b9\u207b'       # % degree squared cubed ...
+_SIGNS = '+\u2212\u00b1'
+
+
+def _core_bounds(seg):
+    """Index range [i, j) of the left-to-right island inside a non-Hebrew stretch: from the first to the last Latin/digit,
+    extended by a sign before a number, unit symbols after it, and the brackets needed to balance the island.
+    Everything outside (spaces, commas, a hyphen after a Hebrew prefix, unbalanced brackets) is emitted as an RTL run."""
+    ms = list(_ALN.finditer(seg))
+    i, j = ms[0].start(), ms[-1].end()
+    while i > 0 and seg[i - 1] in _SIGNS: i -= 1                       # sign directly before the number
+    if i > 0 and seg[i - 1] == '-' and i - 1 > 0 and seg[i - 2].isspace() and seg[i].isdigit(): i -= 1   # minus after a space
+    while j < len(seg) and seg[j] in _TAILSYM: j += 1
+    depth = 0; need_left = 0
+    for ch in seg[i:j]:
+        if ch in '([{': depth += 1
+        elif ch in ')]}':
+            if depth: depth -= 1
+            else: need_left += 1
+    need_right = depth
+    while need_left and i > 0 and seg[i - 1] in '([{': i -= 1; need_left -= 1
+    while need_right and j < len(seg) and seg[j] in ')]}': j += 1; need_right -= 1
+    return i, j
+
+
+_SUBRE = re.compile('(?<![A-Za-z0-9_.])([A-Za-zΩω])_([A-Za-z0-9]{1,4})(?![A-Za-z0-9_.(])')
+_NBSP = ' '
+_UNITS = re.compile(r'(\d) (?=(?:Hz|kHz|dB|mm|cm|m/s|N·m|kg/m³|rad/s|kW|GPa|µPa|ms|Pa|rpm|m|N|W|s)(?![A-Za-z0-9]))')
+
+
+def _island(p, text, b, italic, size, color):
+    """Left-to-right island; X_sub patterns (single letter + short subscript) become real subscripts."""
+    pos = 0
+    for m in _SUBRE.finditer(text):
+        if m.start() > pos: _run(p, text[pos:m.start()], bold=b, italic=italic, size=size, color=color, rtl=False)
+        _run(p, m.group(1), bold=b, italic=italic, size=size, color=color, rtl=False)
+        r = _run(p, m.group(2), bold=b, italic=italic, size=size, color=color, rtl=False); r.font.subscript = True
+        pos = m.end()
+    if pos < len(text): _run(p, text[pos:], bold=b, italic=italic, size=size, color=color, rtl=False)
 
 
 def _ltr(p, seg, b, italic, size, color):
-    """Non-Hebrew stretch: whitespace stays neutral, the Latin/number core becomes an isolated LTR island (LRM on both sides)."""
-    core = seg.strip()
-    if not core or not re.search(r'[A-Za-z0-9]', core):
-        _run(p, seg, bold=b, italic=italic, size=size, color=color, rtl=False); return
-    i = seg.index(core); lead, trail = seg[:i], seg[i + len(core):]
-    if lead: _run(p, lead, bold=b, italic=italic, size=size, color=color, rtl=True)
-    _run(p, LRM + core + LRM, bold=b, italic=italic, size=size, color=color, rtl=False)
-    if trail: _run(p, trail, bold=b, italic=italic, size=size, color=color, rtl=True)
+    """Non-Hebrew stretch between two Hebrew stretches. Latin/numbers/formulas become one isolated LTR island (LRM on both sides);
+    all other characters (spaces, punctuation, brackets, a hyphen attached to a Hebrew prefix) become RTL runs, so a closing bracket or
+    comma stays on the Hebrew side of the island where it belongs."""
+    if not _ALN.search(seg):
+        _run(p, seg, bold=b, italic=italic, size=size, color=color, rtl=True); return
+    i, j = _core_bounds(seg)
+    if i: _run(p, seg[:i], bold=b, italic=italic, size=size, color=color, rtl=True)
+    _island(p, LRM + seg[i:j] + LRM, b, italic, size, color)
+    if j < len(seg): _run(p, seg[j:], bold=b, italic=italic, size=size, color=color, rtl=True)
 
 
 _SPLIT = re.compile(r'([֐-׿][֐-׿\s,.;:!?־"\'()\-–]*[֐-׿]|[֐-׿])')
@@ -84,6 +144,7 @@ _SPLIT = re.compile(r'([֐-׿][֐-׿\s,.;:!?־"\'()\-–]*[֐-׿]|[֐-׿])')
 def add_text(p, text, bold=False, italic=False, size=None, color=None):
     """Mixed Hebrew/Latin text: Hebrew stretches become RTL runs; everything else (Latin, digits, units, formulas) LTR runs.
     Inline markers: **bold**, `mono`."""
+    text = _UNITS.sub(lambda m: m.group(1) + _NBSP, text)
     parts = re.split(r'(\*\*[^*]+\*\*|`[^`]+`)', text)
     for part in parts:
         if not part: continue
