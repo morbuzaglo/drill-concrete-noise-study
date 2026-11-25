@@ -116,7 +116,7 @@ def write_case(cid, t, bur):
          '$#     nid      ntyp       dof       vad       lc1       lc2       lc3       vid'] + cards[0] +         [f'$ --- load case {k + 1}: {names[k]}' for k in (1, 2, 3)] +         ['$' + x[1:] for k in (1, 2, 3) for x in cards[k][:3]] +         ['*DATABASE_FREQUENCY_BINARY_D3SSD', '$#  binary', '         1', '$#    fmin      fmax     nfreq    fspace    lcfreq',
          '%10.4f%10.4f%10d%10d%10d' % (FMIN, FMAX, NFREQ, 0, 0),
          '*FREQUENCY_DOMAIN_ACOUSTIC_BEM', '$#      ro         c     fnmin     fnmax     nfreq    dt_out   t_start      pref',
-         '%10.4f%10.4f%10.4f%10.4f%10d%10.6f%10.3f%10.4E' % (1.2, 343.0, FMIN, FMAX, NFREQ, 0.001, 0.0, 2.0E-5),
+         '%10.4f%10.4f%10.4f%10.4f%10d%10.6f%10.3f%10.3E' % (1.2, 343.0, FMIN, FMAX, NFREQ, 0.001, 0.0, 2.0E-5),
          '$#nsid_ext  type_ext  nsid_int  type_int   fft_win     trslt    ipfile    iunits', '         2         1         0         0         4         0         0         0',
          '$#  method     maxit  tol_iter       ndd    tol_lr  tol_fact     ibdim       npg', '         2      1000 1.0000E-6         8     0.000     0.000         0         0',
          '$#               nbc    restrt     iedge      noel     nfrup', '                   1                   1',

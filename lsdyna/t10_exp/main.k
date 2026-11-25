@@ -54,7 +54,7 @@ $#    fmin      fmax     nfreq    fspace    lcfreq
    44.1900 1414.3000      1000         0         0
 *FREQUENCY_DOMAIN_ACOUSTIC_BEM
 $#      ro         c     fnmin     fnmax     nfreq    dt_out   t_start      pref
-    1.2000  343.0000   44.1900 1414.3000      1000  0.001000     0.0002.0000E-05
+    1.2000  343.0000   44.1900 1414.3000      1000  0.001000     0.000 2.000E-05
 $#nsid_ext  type_ext  nsid_int  type_int   fft_win     trslt    ipfile    iunits
          2         1         0         0         4         0         0         0
 $#  method     maxit  tol_iter       ndd    tol_lr  tol_fact     ibdim       npg
