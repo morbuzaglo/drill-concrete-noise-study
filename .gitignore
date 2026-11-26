@@ -16,3 +16,13 @@ lsdyna/*/*
 !lsdyna/manifest.json
 !lsdyna/static_check.txt
 !lsdyna/run_evidence_*/*
+# version B (solid soil) decks: same rule
+lsdyna_solid/*/*
+!lsdyna_solid/*/main.k
+!lsdyna_solid/*/mesh.k
+!lsdyna_solid/*/loads.k
+!lsdyna_solid/*/run.bat
+!lsdyna_solid/manifest.json
+results/ccx_solidcheck/
+# large sensitivity runs of version B: only their band levels (results/tables/solid_sensitivity_bands.csv) are tracked
+results/ccx_*_c.npz

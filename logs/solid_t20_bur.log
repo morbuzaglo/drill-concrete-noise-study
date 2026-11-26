@@ -1,0 +1,18 @@
+  slab modes: 160 -> 81 symmetric, f_max 7937 Hz; soil dofs 39669, interface dofs 744 (17.9s)
+   soil impedance 1/73  f=40 Hz  34s
+   soil impedance 6/73  f=100 Hz  204s
+   soil impedance 11/73  f=160 Hz  374s
+   soil impedance 16/73  f=220 Hz  544s
+   soil impedance 21/73  f=280 Hz  712s
+   soil impedance 26/73  f=340 Hz  883s
+   soil impedance 31/73  f=400 Hz  1053s
+   soil impedance 36/73  f=525 Hz  1223s
+   soil impedance 41/73  f=650 Hz  1396s
+   soil impedance 46/73  f=775 Hz  1575s
+   soil impedance 51/73  f=900 Hz  1761s
+   soil impedance 56/73  f=1025 Hz  1962s
+   soil impedance 61/73  f=1150 Hz  2163s
+   soil impedance 66/73  f=1275 Hz  2405s
+   soil impedance 71/73  f=1400 Hz  2625s
+spline check [(455.0, np.float64(0.0077)), (705.0, np.float64(0.0143)), (1005.0, np.float64(0.0165)), (1305.0, np.float64(0.0033))]
+t20_bur_solid: done 2890 s

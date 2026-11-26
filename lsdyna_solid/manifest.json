@@ -1,0 +1,46 @@
+[
+  {
+    "case": "t10_exp",
+    "t_m": 0.1,
+    "buried": false,
+    "nodes": 17385,
+    "solid_cells": 14912,
+    "dampers": 8769,
+    "bem_shells": 920,
+    "load_nodes": 9,
+    "dofs": 52155
+  },
+  {
+    "case": "t10_bur",
+    "t_m": 0.1,
+    "buried": true,
+    "nodes": 25481,
+    "solid_cells": 22656,
+    "dampers": 11937,
+    "bem_shells": 568,
+    "load_nodes": 9,
+    "dofs": 76443
+  },
+  {
+    "case": "t20_exp",
+    "t_m": 0.2,
+    "buried": false,
+    "nodes": 19515,
+    "solid_cells": 16888,
+    "dampers": 9195,
+    "bem_shells": 1040,
+    "load_nodes": 9,
+    "dofs": 58545
+  },
+  {
+    "case": "t20_bur",
+    "t_m": 0.2,
+    "buried": true,
+    "nodes": 27963,
+    "solid_cells": 24984,
+    "dampers": 12459,
+    "bem_shells": 656,
+    "load_nodes": 9,
+    "dofs": 83889
+  }
+]

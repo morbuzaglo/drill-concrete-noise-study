@@ -1,8 +1,9 @@
 """Hebrew (RTL) theory + practice manual: structure-borne noise of concrete drilling, simulated with LS-DYNA (SSD + acoustic BEM).
 Figures are SVG (with PNG fallback, OOXML svgBlip). Code excerpts are read from the real decks in lsdyna/t10_bur.
 Typesetting rules (see docx_he._ltr): Latin/number islands are isolated; commas, brackets and hyphen prefixes stay on the Hebrew side."""
-import pathlib, datetime, json
+import pathlib, datetime, json, os, sys
 import docx_he, re
+import manual_solid_parts as SP
 from docx.opc.part import Part
 from docx.opc.packuri import PackURI
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
@@ -11,14 +12,17 @@ from docx_he import _mr, _sub, _frac, _bidi, _shade
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FIG = ROOT / 'figures' / 'manual'; OUT = ROOT / 'report'; OUT.mkdir(exist_ok=True)
-DECK = ROOT / 'lsdyna' / 't10_bur'
+SOLID = os.environ.get('MANUAL_SOLID') == '1'            # version B: the soil as a solid block
+DECK = ROOT / ('lsdyna_solid' if SOLID else 'lsdyna') / 't10_bur'
+SUFFIX = '_solid' if SOLID else ''
 cnt = {'fig': 0, 'tab': 0}
 _svg_n = [0]
 
 
 # ------------------------------------------------------------------ helpers
 def fig(d, name, width_cm, caption):
-    png = FIG / f'{name}.fallback.png'; svg = FIG / f'{name}.svg'
+    base = ROOT / 'figures' / name.split('/')[0] if '/' in name else FIG; name = name.split('/')[-1]
+    png = base / f'{name}.fallback.png'; svg = base / f'{name}.svg'
     p = d.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.keep_with_next = True; p.paragraph_format.space_after = Pt(2)
     run = p.add_run(); run.add_picture(str(png), width=Cm(width_cm))
     _svg_n[0] += 1
@@ -101,7 +105,7 @@ def heading(d, text, level=1):
 def build_toc(d, anchor):
     """Static table of contents (RTL table, text on the right, page number on the left) inserted before the anchor paragraph.
     Page numbers come from toc_pages.json (written by manual_pages.py after a first build)."""
-    pf = ROOT / 'report' / 'toc_pages.json'
+    pf = ROOT / 'report' / f'toc_pages{SUFFIX}.json'
     pages = json.loads(pf.read_text()) if pf.exists() else []
     if len(pages) != len(HEADS): pages = ['' for _ in HEADS]
     for (lvl, text), pg in zip(HEADS, pages):
@@ -130,7 +134,8 @@ def build():
     para(d, 'רעש מבני מקידוח בבטון: מהפיזיקה ועד LS-DYNA', align='center', bold=True, size=19, color=NAVY, space_after=2)
     para(d, 'איך סיבוב של כתר יהלום הופך לקול, איך מדמים את זה בתחום התדר, איך מריצים ומפענחים, ואיך מאמתים בניסויים', align='center', size=13, space_after=4)
     para(d, 'המקרה הלימודי: לוח בטון בעובי 100 או 200 מ"מ, חשוף או קבור חלקית באדמה', align='center', size=11.5, space_after=4)
-    para(d, f'תאריך: {datetime.date.today().strftime("%d.%m.%Y")}. המדריך מלווה את הדוח "רעש מבני מקידוח בבטון" ואת קבצי ההרצה בתיקייה lsdyna.', align='center', size=10, space_after=10)
+    if SOLID: para(d, 'גרסה ב: האדמה כגוף מוצק במקום קפיצים, ופרק השוואה לגרסה א', align='center', bold=True, size=14, color=NAVY, space_after=4)
+    para(d, f'תאריך: {datetime.date.today().strftime("%d.%m.%Y")}. המדריך מלווה את הדוח "רעש מבני מקידוח בבטון" ואת קבצי ההרצה בתיקייה {"lsdyna_solid" if SOLID else "lsdyna"}.', align='center', size=10, space_after=10)
     docx_he.heading(d, 'תוכן העניינים', 1); toc_anchor = d.add_paragraph()
     d.add_page_break()
 
@@ -149,7 +154,7 @@ def build():
         '**הלוח** מקבל את הכוח המשתנה ורוטט. כל לוח רוטט בתדרים מועדפים, התדרים העצמיים שלו, ושם הרטט גדול במיוחד.',
         '**האוויר** מקבל תנועה מפני הלוח ויוצר גל קול. לוח דק רוטט יותר ומקרין ביעילות רבה יותר, ולכן רועש יותר.',
         '**הסימולציה** מפרקת את הבעיה לשלוש חוליות, ומחשבת לכל חוליה את התמסורת ליחידת כוח. את הכוח האמיתי מכפילים אחר כך, כשמכירים אותו ממדידה.',
-        '**LS-DYNA** מבצע את חוליית המבנה באמצעות *FREQUENCY_DOMAIN_SSD, ואת חוליית הקרינה באמצעות *FREQUENCY_DOMAIN_ACOUSTIC_BEM.',
+        ('**LS-DYNA** מבצע את חוליית המבנה והאדמה באמצעות *FREQUENCY_DOMAIN_SSD_DIRECT, ואת חוליית הקרינה באמצעות *FREQUENCY_DOMAIN_ACOUSTIC_BEM.' if SOLID else '**LS-DYNA** מבצע את חוליית המבנה באמצעות *FREQUENCY_DOMAIN_SSD, ואת חוליית הקרינה באמצעות *FREQUENCY_DOMAIN_ACOUSTIC_BEM.'),
         '**הניסויים** נותנים לנו את הכוח, את תכונות החומרים והאדמה, ובודקים שהחיזוי נכון. בלעדיהם התוצאה היא הדגמה בלבד.'])
     T(d, 'מפת הקריאה', ['אם אתם רוצים…', 'קראו'], [
         ['להבין למה לוח דק רועש יותר', 'פרקים 3 ו-5'],
@@ -159,7 +164,7 @@ def build():
         ['לתקן שגיאה בלוג', 'פרק 18 ונספח א'],
         ['לתכנן מדידות', 'פרקים 21 ו-22'],
     ], [9.0, 6.8])
-    note(d, 'כל קטע קוד במדריך מגיע מהמחקר ורץ ב-Ansys LS-DYNA R14, גרסת v252, עד "Normal termination". היכן שלא אימתנו התנהגות מול הפתרן, כתבנו זאת במפורש.', 'הערה')
+    note(d, ('קטעי הקוד במדריך מגיעים מקבצי ההרצה של גרסה ב. הם עברו בדיקה סטטית, ולא הורצו ב-LS-DYNA. היכן שלא אימתנו התנהגות מול הפתרן, כתבנו זאת במפורש.' if SOLID else 'כל קטע קוד במדריך מגיע מהמחקר ורץ ב-Ansys LS-DYNA R14, גרסת v252, עד "Normal termination". היכן שלא אימתנו התנהגות מול הפתרן, כתבנו זאת במפורש.'), 'הערה')
 
     # ============================================================ PART A
     d.add_page_break()
@@ -283,13 +288,16 @@ def build():
     fig(d, 'f05_meshrule', 13.0, 'גודל אלמנט מרבי כפונקציה של התדר. הפאנל האקוסטי של 0.10 m מספיק רק בתחום הנמוך. מעל כ-600 Hz עוברים ל-0.05 m.')
 
     # ------------------------------------------------------------ 4 soil
-    heading(d, '4. האדמה כעכבה', 1)
-    note(d, 'הלוח הקבור נוגע באדמה, והאדמה גם מקשיחה וגם סופגת אנרגיה. במקום לדמות אדמה אינסופית, החלפנו אותה בקפיצים ובולמים על פני הלוח הקבורים. זה פשוט, אבל גס.', 'בקיצור')
-    para(d, 'בחצי-מרחב אמיתי היינו צריכים רשת של אדמה שנמשכת עשרות מטרים, וגבולות שלא מחזירים גלים. במקום זה נעזרנו במודל Winkler עם בולמי Lysmer. לכל יחידת שטח של פני הלוח הקבורים:', keep=True)
-    equation(d, S('kₙ = ρc_p²/L,   kₜ = G/L,   cₙ = ρc_p,   cₜ = ρV_s'))
-    para(d, 'כאן ρ הצפיפות, V_s מהירות גל גזירה, G = ρV_s², c_p = V_s·√(2(1−ν)/(1−2ν)) מהירות גל לחיצה, ו-L אורך ייחוס. הבולם ρc הוא העכבה האופיינית של גל בחומר: אנרגיה שזורמת אליו לא חוזרת, בדיוק כמו בקרינה לאדמה. הערכים ליחידת שטח מוכפלים בשטח המשפיע של כל צומת.')
-    fig(d, 'f06_soil', 14.5, 'שני מודלים לאדמה. המחקר השתמש בקפיצים ובולמים, משמאל. המודל מימין מדויק יותר, ויקר בהרבה.')
-    note(d, 'אורך הייחוס L = 1 m הוא בחירת מודל ואין לו בסיס פיזיקלי. זו הסיבה שהתוצאות ב-63 וב-125 Hz רגישות להנחות האדמה: שינוי של V_s או של הקשיחות מזיז את הרמות ב-2 עד 4 dB, ויכול להפוך את הסימן של השפעת הקבורה. מעל 250 Hz התוצאות יציבות. כשהאדמה חשובה, בנו תחום אדמה אמיתי עם גבולות בולעים, ומדדו את האדמה (ניסוי E4).', 'אזהרה')
+    if SOLID:
+        SP.ch4(d, sys.modules[__name__])
+    else:
+        heading(d, '4. האדמה כעכבה', 1)
+        note(d, 'הלוח הקבור נוגע באדמה, והאדמה גם מקשיחה וגם סופגת אנרגיה. במקום לדמות אדמה אינסופית, החלפנו אותה בקפיצים ובולמים על פני הלוח הקבורים. זה פשוט, אבל גס.', 'בקיצור')
+        para(d, 'בחצי-מרחב אמיתי היינו צריכים רשת של אדמה שנמשכת עשרות מטרים, וגבולות שלא מחזירים גלים. במקום זה נעזרנו במודל Winkler עם בולמי Lysmer. לכל יחידת שטח של פני הלוח הקבורים:', keep=True)
+        equation(d, S('kₙ = ρc_p²/L,   kₜ = G/L,   cₙ = ρc_p,   cₜ = ρV_s'))
+        para(d, 'כאן ρ הצפיפות, V_s מהירות גל גזירה, G = ρV_s², c_p = V_s·√(2(1−ν)/(1−2ν)) מהירות גל לחיצה, ו-L אורך ייחוס. הבולם ρc הוא העכבה האופיינית של גל בחומר: אנרגיה שזורמת אליו לא חוזרת, בדיוק כמו בקרינה לאדמה. הערכים ליחידת שטח מוכפלים בשטח המשפיע של כל צומת.')
+        fig(d, 'f06_soil', 14.5, 'שני מודלים לאדמה. המחקר השתמש בקפיצים ובולמים, משמאל. המודל מימין מדויק יותר, ויקר בהרבה.')
+        note(d, 'אורך הייחוס L = 1 m הוא בחירת מודל ואין לו בסיס פיזיקלי. זו הסיבה שהתוצאות ב-63 וב-125 Hz רגישות להנחות האדמה: שינוי של V_s או של הקשיחות מזיז את הרמות ב-2 עד 4 dB, ויכול להפוך את הסימן של השפעת הקבורה. מעל 250 Hz התוצאות יציבות. כשהאדמה חשובה, בנו תחום אדמה אמיתי עם גבולות בולעים, ומדדו את האדמה (ניסוי E4).', 'אזהרה')
 
     # ------------------------------------------------------------ 5 acoustics
     heading(d, '5. אקוסטיקה: קרינה מלוח רוטט', 1)
@@ -321,17 +329,20 @@ def build():
     para(d, 'עיקרון חשוב: **משווים בין מודלים בלתי תלויים**. במחקר, כל מודל נוסף, CalculiX, Bempp-cl, קוד עצמאי ו-OpenRadioss, מצא או אישר דבר שלא נראה במודל אחד. גם ההרצה הראשונה ב-LS-DYNA חשפה בעיה רק בהשוואה לתדרי CalculiX, כפי שמתואר בפרק 18.')
 
     # ------------------------------------------------------------ 7 summary of the 2x2 results
-    heading(d, '7. מה מצאנו במחקר', 1)
-    para(d, 'התוצאות מחושבות ב-CalculiX וב-Bempp-cl, ליחידת כוח צירי ובספקטרום עירור שטוח, במיקרופון F. כל הפרשי הרמה בטבלה הם ב-dB, ואי-הוודאות המספרית של הפרש היא כ-1.4 dB.')
-    T(d, 'הפרשי רמה בין המקרים', ['תופעה', '63 Hz', '125 Hz', '250 Hz', '500 Hz', '1000 Hz'], [
-        ['עובי 200 מול 100 mm, חשוף', '−4.7', '−4.0', '−3.1', '−5.9', '−12.8'],
-        ['קבורה מול חשוף, t=100 mm', '−0.1', '+2.0', '−2.9', '−6.3', '−11.3'],
-        ['קבורה מול חשוף, t=200 mm', '−1.1', '+0.8', '−3.8', '−5.4', '−8.3'],
-    ], [5.2, 2.1, 2.1, 2.1, 2.1, 2.2], size=9.5)
-    bullets(d, [
-        '**עובי.** הלוח העבה קורן פחות בכל הפסים, והפער גדל עם התדר.',
-        '**קבורה.** מעל 250 Hz הקבורה מפחיתה קרינה. ב-63 וב-125 Hz הסימן תלוי בקשיחות האדמה, שלא נמדדה.',
-        '**מה שחסר.** אין תיקוף פיזי. העומס האמיתי לא ידוע, ולכן הדוח נותן יחס לחץ-כוח ולא רמת קול מוחלטת.'])
+    if SOLID:
+        SP.ch7(d, sys.modules[__name__])
+    else:
+        heading(d, '7. מה מצאנו במחקר', 1)
+        para(d, 'התוצאות מחושבות ב-CalculiX וב-Bempp-cl, ליחידת כוח צירי ובספקטרום עירור שטוח, במיקרופון F. כל הפרשי הרמה בטבלה הם ב-dB, ואי-הוודאות המספרית של הפרש היא כ-1.4 dB.')
+        T(d, 'הפרשי רמה בין המקרים', ['תופעה', '63 Hz', '125 Hz', '250 Hz', '500 Hz', '1000 Hz'], [
+            ['עובי 200 מול 100 mm, חשוף', '−4.7', '−4.0', '−3.1', '−5.9', '−12.8'],
+            ['קבורה מול חשוף, t=100 mm', '−0.1', '+2.0', '−2.9', '−6.3', '−11.3'],
+            ['קבורה מול חשוף, t=200 mm', '−1.1', '+0.8', '−3.8', '−5.4', '−8.3'],
+        ], [5.2, 2.1, 2.1, 2.1, 2.1, 2.2], size=9.5)
+        bullets(d, [
+            '**עובי.** הלוח העבה קורן פחות בכל הפסים, והפער גדל עם התדר.',
+            '**קבורה.** מעל 250 Hz הקבורה מפחיתה קרינה. ב-63 וב-125 Hz הסימן תלוי בקשיחות האדמה, שלא נמדדה.',
+            '**מה שחסר.** אין תיקוף פיזי. העומס האמיתי לא ידוע, ולכן הדוח נותן יחס לחץ-כוח ולא רמת קול מוחלטת.'])
 
     # ------------------------------------------------------------ 8 modelling the drill
     heading(d, '8. איך מדמים את הקידוח', 1)
@@ -398,38 +409,44 @@ def build():
     ], [3.5, 5.0, 7.3])
     note(d, 'בלוח דק, אלמנט קוביה פשוט נוקשה מדי בכפיפה, תופעה שנקראת shear locking. לכן בחרנו באלמנט עם מצבים לא תואמים. השוואת התדרים העצמיים ל-CalculiX הראתה התאמה טובה.', 'הערה')
 
-    heading(d, '12. שלב 3: אדמה וקרקע', 1)
-    note(d, 'כל צומת על פני הלוח הקבורים מחובר בקפיץ ובבולם לנקודה קבועה. הערכים נגזרים מ-ρ, מ-V_s ומשטח הצומת.', 'בקיצור')
-    para(d, 'האדמה מוגדרת באלמנטים דיסקרטיים: קפיץ, `*MAT_SPRING_ELASTIC`, ובולם, `*MAT_DAMPER_VISCOUS`, שמחברים כל צומת של פני השטח הקבורים לצומת קרקע נעול. לכל זוג יש חומר, חתך ו-part משלו, והאלמנט עצמו הוא `*ELEMENT_DISCRETE`.')
-    code(d, grab('mesh.k', '*MAT_SPRING_ELASTIC', 2) + '\n' + grab('mesh.k', '*MAT_DAMPER_VISCOUS', 2) + '\n' + grab('mesh.k', '*SECTION_DISCRETE', 4) + '\n' + grab('mesh.k', '*ELEMENT_DISCRETE', 4), title='קפיץ, בולם, חתך דיסקרטי ואלמנט דיסקרטי, mesh.k')
-    T(d, 'כרטיסי האדמה', ['מילת מפתח', 'שדות', 'הערות'], [
-        ['*MAT_SPRING_ELASTIC', 'MID, K', 'K בניוטון למטר, לצומת'],
-        ['*MAT_DAMPER_VISCOUS', 'MID, DC', 'DC בניוטון-שנייה למטר'],
-        ['*SECTION_DISCRETE', 'כרטיס 1: SECID, DRO, KD, V0, CL, FD. כרטיס 2: CDL, TDL', 'שני כרטיסים. DRO = 0 מציין שינוי אורך, כלומר תזוזה'],
-        ['*ELEMENT_DISCRETE', 'EID, PID, N1, N2, VID, S, PF, OFFSET', 'הכיוון נקבע לפי הקו בין N1 ל-N2'],
-    ], [3.8, 6.8, 5.2])
-    para(d, 'ארבעה פרטים שלמדנו מהניסיון:')
-    bullets(d, [
-        '**כיוון.** האלמנט הדיסקרטי פועל לאורך הקו שבין צמתיו, ולכן כל אלמנט מתאים לכיוון אחד בלבד, x, y או z. לכן יש שלושה זוגות קפיץ ובולם לכל צומת.',
-        '**צומת קרקע.** הוא ממוקם במרחק 1 מטר מצומת הלוח, כדי לתת לקפיץ אורך מוגדר, ומקובע ב-`*BOUNDARY_SPC_SET`.',
-        '**קיבוץ.** חומרים בעלי ערך זהה מאוחדים. כך מספר ה-part קטן מאוד: 7 חומרי קפיץ ו-7 חומרי בולם במקרה t=100 mm קבור.',
-        '**כרטיס שני.** החתך הדיסקרטי דורש כרטיס שני. בלעדיו הקורא מפרש את שורת ה-`*PART` הבאה כנתונים, ומתקבלות עשרות שגיאות נגזרות (פרק 18).'])
-    code(d, '*BOUNDARY_SPC_SET\n$#    nsid       cid      dofx      dofy      dofz     dofrx     dofry     dofrz\n         1         0         1         1         1         1         1         1', title='נעילת צמתי הקרקע, קבוצה 1')
+    if SOLID:
+        SP.ch12(d, sys.modules[__name__])
+    else:
+        heading(d, '12. שלב 3: אדמה וקרקע', 1)
+        note(d, 'כל צומת על פני הלוח הקבורים מחובר בקפיץ ובבולם לנקודה קבועה. הערכים נגזרים מ-ρ, מ-V_s ומשטח הצומת.', 'בקיצור')
+        para(d, 'האדמה מוגדרת באלמנטים דיסקרטיים: קפיץ, `*MAT_SPRING_ELASTIC`, ובולם, `*MAT_DAMPER_VISCOUS`, שמחברים כל צומת של פני השטח הקבורים לצומת קרקע נעול. לכל זוג יש חומר, חתך ו-part משלו, והאלמנט עצמו הוא `*ELEMENT_DISCRETE`.')
+        code(d, grab('mesh.k', '*MAT_SPRING_ELASTIC', 2) + '\n' + grab('mesh.k', '*MAT_DAMPER_VISCOUS', 2) + '\n' + grab('mesh.k', '*SECTION_DISCRETE', 4) + '\n' + grab('mesh.k', '*ELEMENT_DISCRETE', 4), title='קפיץ, בולם, חתך דיסקרטי ואלמנט דיסקרטי, mesh.k')
+        T(d, 'כרטיסי האדמה', ['מילת מפתח', 'שדות', 'הערות'], [
+            ['*MAT_SPRING_ELASTIC', 'MID, K', 'K בניוטון למטר, לצומת'],
+            ['*MAT_DAMPER_VISCOUS', 'MID, DC', 'DC בניוטון-שנייה למטר'],
+            ['*SECTION_DISCRETE', 'כרטיס 1: SECID, DRO, KD, V0, CL, FD. כרטיס 2: CDL, TDL', 'שני כרטיסים. DRO = 0 מציין שינוי אורך, כלומר תזוזה'],
+            ['*ELEMENT_DISCRETE', 'EID, PID, N1, N2, VID, S, PF, OFFSET', 'הכיוון נקבע לפי הקו בין N1 ל-N2'],
+        ], [3.8, 6.8, 5.2])
+        para(d, 'ארבעה פרטים שלמדנו מהניסיון:')
+        bullets(d, [
+            '**כיוון.** האלמנט הדיסקרטי פועל לאורך הקו שבין צמתיו, ולכן כל אלמנט מתאים לכיוון אחד בלבד, x, y או z. לכן יש שלושה זוגות קפיץ ובולם לכל צומת.',
+            '**צומת קרקע.** הוא ממוקם במרחק 1 מטר מצומת הלוח, כדי לתת לקפיץ אורך מוגדר, ומקובע ב-`*BOUNDARY_SPC_SET`.',
+            '**קיבוץ.** חומרים בעלי ערך זהה מאוחדים. כך מספר ה-part קטן מאוד: 7 חומרי קפיץ ו-7 חומרי בולם במקרה t=100 mm קבור.',
+            '**כרטיס שני.** החתך הדיסקרטי דורש כרטיס שני. בלעדיו הקורא מפרש את שורת ה-`*PART` הבאה כנתונים, ומתקבלות עשרות שגיאות נגזרות (פרק 18).'])
+        code(d, '*BOUNDARY_SPC_SET\n$#    nsid       cid      dofx      dofy      dofz     dofrx     dofry     dofrz\n         1         0         1         1         1         1         1         1', title='נעילת צמתי הקרקע, קבוצה 1')
 
-    heading(d, '13. שלב 4: ערכים עצמיים', 1)
-    note(d, 'SSD עובד על בסיס המודים, ולכן קודם מחשבים אותם. בודקים ש-NEIG מספיק גדול ושהתדרים סבירים.', 'בקיצור')
-    para(d, 'בלוק הבקרה מורכב משלוש מילות מפתח:')
-    code(d, grab('main.k', '*CONTROL_IMPLICIT_EIGENVALUE', 4) + '\n' + grab('main.k', '*CONTROL_IMPLICIT_GENERAL', 2) + '\n' + grab('main.k', '*CONTROL_IMPLICIT_SOLUTION', 2), title='בקרת הערכים העצמיים, main.k')
-    T(d, 'שדות עיקריים', ['שדה', 'משמעות', 'ערך במחקר'], [
-        ['NEIG', 'מספר המודים לחישוב', '60'],
-        ['IMFLAG, ב-GENERAL', 'מצב implicit', '1'],
-        ['EIGMTH', 'שיטת הפתרון של הערכים העצמיים', '0, ברירת מחדל'],
-        ['LFLAG, LFTEND, RFLAG, RHTEND', 'בחירת תחום תדרים במקום מספר מודים', 'לא בשימוש'],
-    ], [4.5, 6.8, 4.5])
-    para(d, '**כמה מודים?** צריך לכסות לפחות את התדר העליון בניתוח, 1414 Hz בלוח שלנו. ב-CalculiX נמצאים 16 מודים מתחת ל-1414 Hz, ו-60 המודים מגיעים עד 3909 Hz, כך ש-60 מספיקים. תמיד בדקו שהמוד האחרון ב-eigout גבוה מהתדר העליון, ועדיף פי שניים.')
-    heading(d, '13.1 בדיקת שפיות של eigout', 2)
-    para(d, 'הקובץ eigout מכיל את הערכים העצמיים. שלוש בדיקות מיידיות: האם המוד הראשון סביר? האם יש גוש של תדרים נמוכים וצפופים שאינם פיזיקליים? האם התדר האחרון גבוה מספיק? בהרצה הראשונה שלנו נכשלנו בשתי הבדיקות האחרונות, כפי שרואים באיור.')
-    fig(d, 'f14_eigen', 13.0, 'הערכים העצמיים בהרצה הראשונה ב-LS-DYNA מול CalculiX. יש התאמה בחמישה מודים אמיתיים ראשונים, אך שאר המודים מדומים, ו-60 המודים נגמרים ב-159 Hz בלבד.')
+    if SOLID:
+        SP.ch13(d, sys.modules[__name__])
+    else:
+        heading(d, '13. שלב 4: ערכים עצמיים', 1)
+        note(d, 'SSD עובד על בסיס המודים, ולכן קודם מחשבים אותם. בודקים ש-NEIG מספיק גדול ושהתדרים סבירים.', 'בקיצור')
+        para(d, 'בלוק הבקרה מורכב משלוש מילות מפתח:')
+        code(d, grab('main.k', '*CONTROL_IMPLICIT_EIGENVALUE', 4) + '\n' + grab('main.k', '*CONTROL_IMPLICIT_GENERAL', 2) + '\n' + grab('main.k', '*CONTROL_IMPLICIT_SOLUTION', 2), title='בקרת הערכים העצמיים, main.k')
+        T(d, 'שדות עיקריים', ['שדה', 'משמעות', 'ערך במחקר'], [
+            ['NEIG', 'מספר המודים לחישוב', '60'],
+            ['IMFLAG, ב-GENERAL', 'מצב implicit', '1'],
+            ['EIGMTH', 'שיטת הפתרון של הערכים העצמיים', '0, ברירת מחדל'],
+            ['LFLAG, LFTEND, RFLAG, RHTEND', 'בחירת תחום תדרים במקום מספר מודים', 'לא בשימוש'],
+        ], [4.5, 6.8, 4.5])
+        para(d, '**כמה מודים?** צריך לכסות לפחות את התדר העליון בניתוח, 1414 Hz בלוח שלנו. ב-CalculiX נמצאים 16 מודים מתחת ל-1414 Hz, ו-60 המודים מגיעים עד 3909 Hz, כך ש-60 מספיקים. תמיד בדקו שהמוד האחרון ב-eigout גבוה מהתדר העליון, ועדיף פי שניים.')
+        heading(d, '13.1 בדיקת שפיות של eigout', 2)
+        para(d, 'הקובץ eigout מכיל את הערכים העצמיים. שלוש בדיקות מיידיות: האם המוד הראשון סביר? האם יש גוש של תדרים נמוכים וצפופים שאינם פיזיקליים? האם התדר האחרון גבוה מספיק? בהרצה הראשונה שלנו נכשלנו בשתי הבדיקות האחרונות, כפי שרואים באיור.')
+        fig(d, 'f14_eigen', 13.0, 'הערכים העצמיים בהרצה הראשונה ב-LS-DYNA מול CalculiX. יש התאמה בחמישה מודים אמיתיים ראשונים, אך שאר המודים מדומים, ו-60 המודים נגמרים ב-159 Hz בלבד.')
 
     heading(d, '14. שלב 5: עומס ו-*FREQUENCY_DOMAIN_SSD', 1)
     note(d, 'בתחום התדר כל עומס מוגדר בשני עקומים: משרעת ופאזה כפונקציה של התדר. הכרטיס של SSD אומר לאיזה צומת, באיזה כיוון ובאילו עקומים.', 'בקיצור')
@@ -443,7 +460,7 @@ def build():
     code(d, grab('main.k', '*FREQUENCY_DOMAIN_SSD', 12), title='בלוק ה-SSD, main.k')
     fig(d, 'f11_cards', 15.5, 'ארבעת סוגי הכרטיסים של *FREQUENCY_DOMAIN_SSD כפי שהוגדרו במחקר. שדות ללא ערך נשארים ריקים.')
     T(d, 'השדות של *FREQUENCY_DOMAIN_SSD', ['כרטיס', 'שדה', 'משמעות', 'ערך'], [
-        ['1', 'MDMIN, MDMAX', 'טווח המודים לשימוש', '1 עד 60'],
+        ['1', 'MDMIN, MDMAX', 'טווח המודים לשימוש' + (', בפתרון ישיר לא אומת מה תפקידם' if SOLID else ''), '1 ו-1' if SOLID else '1 עד 60'],
         ['1', 'FNMIN, FNMAX', 'חלופה: טווח תדרי מודים', '0.0'],
         ['2', 'DAMPF', 'יחס בלימה קבוע ζ לכל המודים', '0.01'],
         ['2', 'LCDAM, LCTYP', 'בלימה תלוית תדר, באמצעות עקום', '0'],
@@ -497,6 +514,7 @@ phase_deg = -j * N * theta_deg                          # ordinate of the phase 
     code(d, grab('mesh.k', '*BOUNDARY_SPC_SET', 2, 1), title='נעילת דרגות הסיבוב של צמתי המעטפת, mesh.k')
 
     heading(d, '16. שלב 7: הרצה וניטור', 1)
+    if SOLID: note(d, 'פרקים 16 עד 19 מתארים את ההרצה היחידה שבוצעה ב-LS-DYNA, t10_bur בגרסה א, עם קפיצים. קבצי גרסה ב לא הורצו, אבל אותם שלבי הרצה, ניטור ופענוח חלים עליהם.', 'הערה')
     note(d, 'ההרצה היא שלושה שלבים רצופים. השלב היקר הוא הרכבת המטריצה של ה-BEM. כדאי להריץ קודם מספר קטן של תדרים כדי לבדוק שהכול עובד.', 'בקיצור')
     para(d, 'מתחילים את ההרצה מ-LS-Run או משורת פקודה. בזמן ההרצה LS-DYNA מדפיס לקובץ messag ולמסך. סימני חיים: אתחול, פתרון ערכים עצמיים, שלב SSD, ואז שלב ה-BEM שמדפיס שורה לכל תדר:')
     code(d, '  frequency  0.72582E+03 Iter      25  Residual  0.91121E-06\n  frequency  0.72444E+03 Iter      27  Residual  0.76110E-06', title='דוגמה לפלט שלב ה-BEM. הפתרן מתקדם מהתדר הגבוה לנמוך')
@@ -557,16 +575,19 @@ phase_deg = -j * N * theta_deg                          # ordinate of the phase 
         ['קרקע ואדמה', 'לדעת מה מדומה ומה לא, ולציין זאת בתוצאות'],
     ], [4.5, 11.3])
 
-    heading(d, '20. יישום על המחקר והמסלול הבא', 1)
-    para(d, 'במחקר הרצנו את כל ארבעת המקרים בשני פתרנים עיקריים, CalculiX ו-Bempp-cl, ובדקנו אותם מול קוד עצמאי ו-OpenRadioss. ב-LS-DYNA הכנו ארבעה מקרים, t10_exp, t10_bur, t20_exp ו-t20_bur, והרצנו עד כה רק את t10_bur. המסקנות ההנדסיות הן מהמחקר העיקרי ולא מ-LS-DYNA.')
-    T(d, 'מצב ההשוואה ל-LS-DYNA', ['נושא', 'מצב'], [
-        ['מודים אמיתיים', 'מתאימים ל-CalculiX: 40.0, 56.1 ו-96.5 Hz'],
-        ['מודים מדומים של מעטפת ה-BEM', 'זוהו ותוקנו בקובץ הקלט. התיקון עדיין לא הורץ'],
-        ['רמות הלחץ', 'ההשוואה הראשונה הושפעה מהמודים המדומים. ההשוואה הנכונה עדיין לא בוצעה'],
-        ['קרקע קשיחה', 'לא ממומשת ב-LS-DYNA'],
-        ['נורמלים', 'טרם אומתו מול פתרון ידוע'],
-    ], [5.5, 10.3])
-    para(d, 'הצעדים הבאים: הרצה מחדש של t10_bur עם הקובץ המתוקן; השוואת תדרים ורמות; מימוש הקרקע באמצעות שיקוף; הרצת שלושת המקרים האחרים; ובדיקת מודל אדמה מוצק עם גבולות בולעים.')
+    if SOLID:
+        SP.ch20(d, sys.modules[__name__])
+    else:
+        heading(d, '20. יישום על המחקר והמסלול הבא', 1)
+        para(d, 'במחקר הרצנו את כל ארבעת המקרים בשני פתרנים עיקריים, CalculiX ו-Bempp-cl, ובדקנו אותם מול קוד עצמאי ו-OpenRadioss. ב-LS-DYNA הכנו ארבעה מקרים, t10_exp, t10_bur, t20_exp ו-t20_bur, והרצנו עד כה רק את t10_bur. המסקנות ההנדסיות הן מהמחקר העיקרי ולא מ-LS-DYNA.')
+        T(d, 'מצב ההשוואה ל-LS-DYNA', ['נושא', 'מצב'], [
+            ['מודים אמיתיים', 'מתאימים ל-CalculiX: 40.0, 56.1 ו-96.5 Hz'],
+            ['מודים מדומים של מעטפת ה-BEM', 'זוהו ותוקנו בקובץ הקלט. התיקון עדיין לא הורץ'],
+            ['רמות הלחץ', 'ההשוואה הראשונה הושפעה מהמודים המדומים. ההשוואה הנכונה עדיין לא בוצעה'],
+            ['קרקע קשיחה', 'לא ממומשת ב-LS-DYNA'],
+            ['נורמלים', 'טרם אומתו מול פתרון ידוע'],
+        ], [5.5, 10.3])
+        para(d, 'הצעדים הבאים: הרצה מחדש של t10_bur עם הקובץ המתוקן; השוואת תדרים ורמות; מימוש הקרקע באמצעות שיקוף; הרצת שלושת המקרים האחרים; ובדיקת מודל אדמה מוצק עם גבולות בולעים.')
 
     # ============================================================ PART C
     d.add_page_break()
@@ -653,24 +674,24 @@ phase_deg = -j * N * theta_deg                          # ordinate of the phase 
         ['*KEYWORD, *TITLE, *END', 'מסגרת הקובץ וכותרת', 'main.k'],
         ['*INCLUDE', 'הכללת קובץ אחר', 'main.k'],
         ['*CONTROL_IMPLICIT_GENERAL', 'הפעלת ניתוח implicit', 'main.k'],
-        ['*CONTROL_IMPLICIT_EIGENVALUE', 'חישוב ערכים עצמיים', 'main.k'],
+        *([] if SOLID else [['*CONTROL_IMPLICIT_EIGENVALUE', 'חישוב ערכים עצמיים', 'main.k']]),
         ['*CONTROL_IMPLICIT_SOLUTION', 'פרמטרי פתרון implicit', 'main.k'],
-        ['*FREQUENCY_DOMAIN_SSD', 'תגובה הרמונית בסופרפוזיציית מודים', 'main.k'],
+        (['*FREQUENCY_DOMAIN_SSD_DIRECT', 'תגובה הרמונית בפתרון ישיר, בלי מודים. פריסת הכרטיסים לא אומתה', 'main.k'] if SOLID else ['*FREQUENCY_DOMAIN_SSD', 'תגובה הרמונית בסופרפוזיציית מודים', 'main.k']),
         ['*DATABASE_FREQUENCY_BINARY_D3SSD', 'תדרי הפלט של SSD: fmin, fmax, nfreq', 'main.k'],
         ['*FREQUENCY_DOMAIN_ACOUSTIC_BEM', 'קרינה אקוסטית בשיטת BEM', 'main.k'],
         ['*NODE, *ELEMENT_SOLID, *ELEMENT_SHELL', 'רשת הלוח ופאנלי BEM', 'mesh.k'],
         ['*PART, *SECTION_SOLID, *SECTION_SHELL', 'חתכים ו-parts', 'mesh.k'],
         ['*MAT_ELASTIC', 'בטון ומעטפת דמה', 'mesh.k'],
-        ['*MAT_SPRING_ELASTIC, *MAT_DAMPER_VISCOUS', 'קפיצים ובולמים של האדמה', 'mesh.k'],
-        ['*SECTION_DISCRETE, *ELEMENT_DISCRETE', 'אלמנטים דיסקרטיים לאדמה', 'mesh.k'],
+        (['*MAT_DAMPER_VISCOUS', 'בולמי Lysmer על הגבול של בלוק האדמה', 'mesh.k'] if SOLID else ['*MAT_SPRING_ELASTIC, *MAT_DAMPER_VISCOUS', 'קפיצים ובולמים של האדמה', 'mesh.k']),
+        (['*SECTION_DISCRETE, *ELEMENT_DISCRETE', 'אלמנטים דיסקרטיים לבולמים', 'mesh.k'] if SOLID else ['*SECTION_DISCRETE, *ELEMENT_DISCRETE', 'אלמנטים דיסקרטיים לאדמה', 'mesh.k']),
         ['*SET_NODE_LIST, *SET_SEGMENT', 'קבוצות: קרקע, מיקרופונים, מעטפת BEM', 'mesh.k'],
         ['*BOUNDARY_SPC_SET', 'נעילת צמתי קרקע ודרגות סיבוב', 'mesh.k'],
         ['*DEFINE_CURVE', 'עקומי משרעת ופאזה של העומס', 'loads.k'],
     ], [6.5, 6.8, 2.5], size=9)
-    para(d, 'מילות מפתח נוספות שמופיעות בדוגמאות של Ansys, ולא השתמשנו בהן: `*FREQUENCY_DOMAIN_ACOUSTIC_BEM_PANEL_CONTRIBUTION` לתרומת כל פאנל, `*FREQUENCY_DOMAIN_ACOUSTIC_FRINGE_PLOT_SPHERE` למפת קול על כדור, `*FREQUENCY_DOMAIN_RANDOM_VIBRATION` לעומס אקראי, `*FREQUENCY_DOMAIN_SSD_DIRECT` לפתרון ישיר בלי מודים, `*DATABASE_FREQUENCY_ASCII_NODOUT_SSD` לפלט צמתים, `*MAT_ACOUSTIC` לחומר אקוסטי בשיטת FEM, ו-`*BOUNDARY_NON_REFLECTING` לגבול לא מחזיר.')
+    para(d, 'מילות מפתח נוספות שמופיעות בדוגמאות של Ansys, ולא השתמשנו בהן: `*FREQUENCY_DOMAIN_ACOUSTIC_BEM_PANEL_CONTRIBUTION` לתרומת כל פאנל, `*FREQUENCY_DOMAIN_ACOUSTIC_FRINGE_PLOT_SPHERE` למפת קול על כדור, `*FREQUENCY_DOMAIN_RANDOM_VIBRATION` לעומס אקראי, ' + ('' if SOLID else '`*FREQUENCY_DOMAIN_SSD_DIRECT` לפתרון ישיר בלי מודים, ') + '`*DATABASE_FREQUENCY_ASCII_NODOUT_SSD` לפלט צמתים, `*MAT_ACOUSTIC` לחומר אקוסטי בשיטת FEM, ו-`*BOUNDARY_NON_REFLECTING` לגבול לא מחזיר.')
 
     heading(d, 'נספח ב: קובץ main.k המלא', 1)
-    code(d, (DECK / 'main.k').read_text().rstrip(), size=7.5, title='main.k של המקרה t10_bur')
+    code(d, (DECK / 'main.k').read_text().rstrip(), size=7.5, title='main.k של המקרה t10_bur' + (', גרסה ב' if SOLID else ''))
 
     heading(d, 'נספח ג: מושגים ויחידות', 1)
     T(d, 'מושגים עיקריים', ['English', 'עברית', 'הסבר קצר'], [
@@ -718,7 +739,7 @@ phase_deg = -j * N * theta_deg                          # ordinate of the phase 
     ], 1):
         para(d, f'[{i}] ' + s, size=9.5, space_after=2, align='left')
     build_toc(d, toc_anchor)
-    out = OUT / 'LS-DYNA_manual_he.docx'
+    out = OUT / f'LS-DYNA_manual{SUFFIX}_he.docx'
     d.save(out); print('saved', out)
 
 

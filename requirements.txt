@@ -10,3 +10,4 @@ meshio==5.3.5
 python-docx==1.2.0
 pywin32==312
 pymupdf==2.1
+pypardiso==0.4.7

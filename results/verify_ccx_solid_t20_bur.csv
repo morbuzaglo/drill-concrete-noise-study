@@ -1,0 +1,10 @@
+quantity,own,calculix,rel_diff
+static u_x at load node [m],1.722627e-08,1.722627e-08,5.56e-08
+eigenfrequency 1 [Hz],49.391,49.248,0.0029
+eigenfrequency 2 [Hz],56.939,56.785,0.0027
+eigenfrequency 3 [Hz],62.481,62.026,0.0073
+eigenfrequency 4 [Hz],77.492,76.825,0.0086
+eigenfrequency 5 [Hz],78.888,77.797,0.0138
+eigenfrequency 6 [Hz],87.058,85.694,0.0157
+eigenfrequency 7 [Hz],88.766,87.331,0.0162
+eigenfrequency 8 [Hz],90.052,88.625,0.0159

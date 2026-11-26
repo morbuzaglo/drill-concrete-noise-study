@@ -1,0 +1,11 @@
+  slab modes: 160 -> 80 symmetric, f_max 8770 Hz; soil dofs 24375, interface dofs 96 (2.1s)
+   soil impedance 1/37  f=40 Hz  9s
+   soil impedance 6/37  f=160 Hz  60s
+   soil impedance 11/37  f=280 Hz  110s
+   soil impedance 16/37  f=400 Hz  159s
+   soil impedance 21/37  f=650 Hz  211s
+   soil impedance 26/37  f=900 Hz  270s
+   soil impedance 31/37  f=1150 Hz  332s
+   soil impedance 36/37  f=1400 Hz  400s
+spline check [(455.0, np.float64(0.0061)), (705.0, np.float64(0.0105)), (1005.0, np.float64(0.031)), (1305.0, np.float64(0.0181))]
+t10_exp_base_c: done 467 s

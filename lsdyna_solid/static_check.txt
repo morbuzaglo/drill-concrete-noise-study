@@ -1,0 +1,4 @@
+t10_exp nodes=26158 solids=14912 shells=920 dampers=8769 missing=0 negvol=0 Fx=1.000000 wide=0
+t10_bur nodes=37422 solids=22656 shells=568 dampers=11937 missing=0 negvol=0 Fx=1.000000 wide=0
+t20_exp nodes=28714 solids=16888 shells=1040 dampers=9195 missing=0 negvol=0 Fx=1.000000 wide=0
+t20_bur nodes=40426 solids=24984 shells=656 dampers=12459 missing=0 negvol=0 Fx=1.000000 wide=0

@@ -4,6 +4,15 @@ Status: numerical demonstration study with documented assumptions. No physical v
 Report (Hebrew): `report/drill_noise_report_he.docx` and `.pdf`.
 Theory + practice manual for LS-DYNA SSD/BEM (Hebrew, SVG figures): `report/LS-DYNA_manual_he.docx` and `.pdf` (rebuild everything with `python src/build_manual.py`; it runs the figure scripts, builds the docx twice for the static table of contents, and exports the PDF through Word).
 
+## Version B: the soil as a SOLID block (instead of springs)
+Same slab, load, Bempp-cl acoustics and post-processing as version A; only the soil model changes. Version A (springs) is untouched.
+- Model: graded hex mesh of slab + soil block (`src/solidmesh.py`), soil condensed to the interface (`src/soil_solid.py`, MKL PARDISO via `pypardiso`), modal slab coupled to the soil dynamic stiffness (`src/coupled.py`), Lysmer dampers on the outer faces, hysteretic soil damping, half model about the drill plane.
+- Run (from `src/`, venv python, PATH must contain `%LOCALAPPDATA%\drill-lsdyna-venv\Libraryin`): `bash ../run_solid_queue.sh` (4 production cases, ~20 min each), `bash ../run_solid_variants.sh` (7 convergence/sensitivity runs, results not stored in git), then `python analyze_solid.py`, `python fig_soil_mesh.py imp`.
+- Verification: `validate_solid.py <case>` (modal vs direct solve), `check_ccx_solid.py <case>` (CalculiX statics/modes on the same mesh), `footing_check.py` (rigid footing vs closed form).
+- Reports (Hebrew): `report/drill_noise_report_solid_he.docx/.pdf` (`python make_report_solid.py`, then `python export_pdf.py drill_noise_report_solid_he`) and `report/LS-DYNA_manual_solid_he.docx/.pdf` (`python build_manual.py solid`). Both include a comparison with version A.
+- LS-DYNA decks with solid soil: `lsdyna_solid/<case>/` (`python make_lsdyna_solid_decks.py`, static check `python verify_solid_decks.py`). PREPARED, NOT RUN. The `*FREQUENCY_DOMAIN_SSD_DIRECT` card layout is assumed identical to `*FREQUENCY_DOMAIN_SSD` and is not verified; hysteretic soil damping is not represented.
+- Main caveats: far-field mesh (0.2 m) is too coarse above ~300 Hz; soil shear-wave speed (not measured) strongly changes the buried-slab result at 63-125 Hz (slab-on-soil resonance); axial load only.
+
 ## Stack
 CalculiX 2.22 (structure, SSD) + Bempp-cl 0.4.2 (Burton-Miller, ground by image method). In-house FEM/BEM (`src/fem.py`, `src/bem.py`) and OpenRadioss are cross-checks only.
 ## Installation (Windows, no admin rights)
